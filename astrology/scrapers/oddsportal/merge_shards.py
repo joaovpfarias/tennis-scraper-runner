@@ -1,0 +1,151 @@
+"""
+Merge de DBs de shards (gerados pelo GitHub Actions matrix) num DB final.
+
+Uso:
+    python merge_shards.py <shards_dir> <output_db>
+
+Cada shard tem seus proprios IDs auto-incrementados nas tabelas de lookup
+(sports, teams, etc.). O merge:
+  1. Cria DB final com schema vazio
+  2. Para cada shard, copia lookups via INSERT OR IGNORE (dedupe por name)
+  3. Constroi mapping {src_id: dest_id} por tabela
+  4. Insere events e odds remapeando os FKs
+"""
+import sqlite3
+import sys
+from pathlib import Path
+
+from output_writer import DDL  # mesmo schema usado pelo SQLiteWriter
+
+LOOKUP_TABLES = ("sports", "teams", "bookmakers", "markets", "submkts", "outcomes")
+
+
+def _build_mapping(main: sqlite3.Connection, src: sqlite3.Connection, table: str) -> dict[int, int]:
+    """Copia entradas do src.{table} para main.{table} e devolve {src_id: main_id}."""
+    mapping: dict[int, int] = {}
+    for src_id, name in src.execute(f"SELECT id, name FROM {table}"):
+        main.execute(f"INSERT OR IGNORE INTO {table}(name) VALUES (?)", (name,))
+        row = main.execute(f"SELECT id FROM {table} WHERE name = ?", (name,)).fetchone()
+        mapping[src_id] = row[0]
+    return mapping
+
+
+def _build_leagues_mapping(main: sqlite3.Connection, src: sqlite3.Connection,
+                           sports_map: dict[int, int]) -> dict[int, int]:
+    mapping: dict[int, int] = {}
+    for src_id, src_sport_id, path in src.execute("SELECT id, sport_id, path FROM leagues"):
+        new_sport = sports_map[src_sport_id]
+        main.execute("INSERT OR IGNORE INTO leagues(sport_id, path) VALUES (?, ?)", (new_sport, path))
+        row = main.execute("SELECT id FROM leagues WHERE path = ?", (path,)).fetchone()
+        mapping[src_id] = row[0]
+    return mapping
+
+
+def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
+    """Merge de um DB shard no DB principal. Retorna stats."""
+    src = sqlite3.connect(shard_path)
+    src.execute("PRAGMA query_only = ON")  # safety
+
+    # 1) Mapeia lookup tables simples
+    maps = {t: _build_mapping(main, src, t) for t in LOOKUP_TABLES}
+
+    # 2) Leagues (FK pra sports)
+    leagues_map = _build_leagues_mapping(main, src, maps["sports"])
+
+    # 3) Events
+    ev_inserted = 0
+    for row in src.execute("""
+        SELECT id, league_id, season, home_id, away_id, dt_utc, dt_local,
+               score_home, score_away, status, venue, venue_city, venue_country,
+               venue_lat, venue_lon, source_url, scraped_at
+        FROM events
+    """):
+        new_league = leagues_map.get(row[1])
+        new_home = maps["teams"].get(row[3])
+        new_away = maps["teams"].get(row[4])
+        if new_league is None or new_home is None or new_away is None:
+            continue
+        cur = main.execute("""
+            INSERT OR IGNORE INTO events(
+                id, league_id, season, home_id, away_id, dt_utc, dt_local,
+                score_home, score_away, status, venue, venue_city, venue_country,
+                venue_lat, venue_lon, source_url, scraped_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """, (row[0], new_league, row[2], new_home, new_away, *row[5:]))
+        ev_inserted += cur.rowcount
+
+    # 4) Odds (FKs: market, submkt, outcome, bookmaker)
+    odds_inserted = 0
+    for row in src.execute("""
+        SELECT event_id, market_id, submarket_id, outcome_id, bookmaker_id,
+               odds_opening, odds_closing, payout_pct
+        FROM odds
+    """):
+        new_market = maps["markets"].get(row[1])
+        new_sub = maps["submkts"].get(row[2])
+        new_outcome = maps["outcomes"].get(row[3])
+        new_bm = maps["bookmakers"].get(row[4])
+        if None in (new_market, new_sub, new_outcome, new_bm):
+            continue
+        cur = main.execute("""
+            INSERT OR IGNORE INTO odds(
+                event_id, market_id, submarket_id, outcome_id, bookmaker_id,
+                odds_opening, odds_closing, payout_pct
+            ) VALUES (?,?,?,?,?,?,?,?)
+        """, (row[0], new_market, new_sub, new_outcome, new_bm, *row[5:]))
+        odds_inserted += cur.rowcount
+
+    main.commit()
+    src.close()
+    return {"events": ev_inserted, "odds": odds_inserted}
+
+
+def main():
+    if len(sys.argv) < 3:
+        print("Uso: python merge_shards.py <shards_dir> <output_db>")
+        sys.exit(1)
+
+    shards_dir = Path(sys.argv[1])
+    output_db = Path(sys.argv[2])
+
+    output_db.parent.mkdir(parents=True, exist_ok=True)
+    if output_db.exists():
+        output_db.unlink()
+
+    main_con = sqlite3.connect(str(output_db))
+    main_con.executescript(DDL)
+    main_con.commit()
+
+    # Encontra todos os DBs nos subdiretorios baixados como artifacts
+    shard_dbs = sorted(shards_dir.rglob("*.db"))
+    if not shard_dbs:
+        print(f"[ERRO] Nenhum .db encontrado em {shards_dir}")
+        sys.exit(2)
+
+    print(f"[merge] {len(shard_dbs)} DBs para mergear:")
+    totals = {"events": 0, "odds": 0}
+    for db_path in shard_dbs:
+        print(f"  -> {db_path}")
+        stats = merge_shard(main_con, str(db_path))
+        totals["events"] += stats["events"]
+        totals["odds"] += stats["odds"]
+        print(f"     +{stats['events']} eventos, +{stats['odds']} odds")
+
+    # Stats finais
+    final = {}
+    for t in ("events", "odds", "leagues", "teams", "bookmakers"):
+        final[t] = main_con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+    main_con.execute("PRAGMA optimize")
+    main_con.close()
+
+    print("\n[merge] Concluido!")
+    print(f"  DB final: {output_db}")
+    print(f"  Eventos:    {final['events']}")
+    print(f"  Odds:       {final['odds']}")
+    print(f"  Torneios:   {final['leagues']}")
+    print(f"  Bookmakers: {final['bookmakers']}")
+
+
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent))
+    main()

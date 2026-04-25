@@ -1,0 +1,136 @@
+name: Football Real Odds (parallel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_from:
+        description: 'Data inicial (YYYY-MM-DD)'
+        required: true
+      date_to:
+        description: 'Data final (YYYY-MM-DD)'
+        required: true
+      full:
+        description: 'Inclui BTTS, Double Chance, H_HT (mais lento)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.12'
+  REQS: 'playwright playwright-stealth tenacity beautifulsoup4 lxml python-dateutil pandas'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1) Discovery: gera lista de ligas de futebol
+  # ---------------------------------------------------------------------------
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          pip install ${{ env.REQS }}
+          playwright install --with-deps chromium
+
+      - name: Discovery only
+        env:
+          DISCOVER_ONLY: '1'
+          DATE_FROM: ${{ inputs.date_from }}
+          DATE_TO:   ${{ inputs.date_to }}
+        run: python astrology/scripts/fetch_real_odds.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: discovered-football-leagues
+          path: astrology/scrapers/oddsportal/data/raw/discovered_football_leagues.json
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # 2) Scrape: 20 jobs paralelos, cada um processa 1/20 das ligas
+  # ---------------------------------------------------------------------------
+  scrape:
+    needs: discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          pip install ${{ env.REQS }}
+          playwright install --with-deps chromium
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: discovered-football-leagues
+          path: astrology/scrapers/oddsportal/data/raw/
+
+      - name: Scrape shard ${{ matrix.shard }}
+        env:
+          SHARD_ID: ${{ matrix.shard }}
+          TOTAL_SHARDS: 20
+          DATE_FROM: ${{ inputs.date_from }}
+          DATE_TO:   ${{ inputs.date_to }}
+          OUTPUT_PATH_OVERRIDE: ${{ github.workspace }}/real_odds_shard_${{ matrix.shard }}.csv
+        run: |
+          if [ "${{ inputs.full }}" = "true" ]; then
+            python astrology/scripts/fetch_real_odds.py --from "${{ inputs.date_from }}" --to "${{ inputs.date_to }}" --full
+          else
+            python astrology/scripts/fetch_real_odds.py --from "${{ inputs.date_from }}" --to "${{ inputs.date_to }}"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-odds-shard-${{ matrix.shard }}
+          path: ${{ github.workspace }}/real_odds_shard_${{ matrix.shard }}.csv
+          retention-days: 7
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # 3) Merge: junta os 20 CSVs num so
+  # ---------------------------------------------------------------------------
+  merge:
+    needs: scrape
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install pandas
+        run: pip install pandas
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: shards/
+          pattern: real-odds-shard-*
+
+      - name: Merge shards
+        run: |
+          python astrology/scripts/merge_real_odds.py shards/ real_odds_full.csv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-odds-final
+          path: real_odds_full.csv
+          retention-days: 30

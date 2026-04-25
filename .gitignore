@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.cache/
+data/raw/*.db
+data/raw/*.csv
+data/raw/*.html
+*.html.tmp
+.venv/
+venv/

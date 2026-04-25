@@ -1,0 +1,123 @@
+name: Tennis Scrape (parallel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      shards:
+        description: 'Numero de shards paralelos (max 20 free)'
+        default: '20'
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.12'
+  REQS: 'playwright playwright-stealth tenacity beautifulsoup4 lxml python-dateutil'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1) Discovery: gera o JSON com todos os slugs de torneios reais
+  # ---------------------------------------------------------------------------
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          pip install ${{ env.REQS }}
+          playwright install --with-deps chromium
+
+      - name: Discovery only
+        env:
+          DISCOVER_ONLY: '1'
+        run: python astrology/scrapers/oddsportal/scrape_tennis_history.py
+
+      - name: Upload discovered slugs
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovered-slugs
+          path: astrology/scrapers/oddsportal/data/raw/discovered_tennis_leagues.json
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # 2) Scrape: 20 jobs paralelos, cada um processa 1/20 dos torneios
+  # ---------------------------------------------------------------------------
+  scrape:
+    needs: discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 350   # ate ~6h por shard
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          pip install ${{ env.REQS }}
+          playwright install --with-deps chromium
+
+      - name: Download discovered slugs
+        uses: actions/download-artifact@v4
+        with:
+          name: discovered-slugs
+          path: astrology/scrapers/oddsportal/data/raw/
+
+      - name: Scrape shard ${{ matrix.shard }}
+        env:
+          SHARD_ID: ${{ matrix.shard }}
+          TOTAL_SHARDS: 20
+          DB_PATH_OVERRIDE: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
+        run: python astrology/scrapers/oddsportal/scrape_tennis_history.py
+
+      - name: Upload shard DB
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
+          retention-days: 7
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # 3) Merge: junta os 20 DBs num so e publica como artifact final
+  # ---------------------------------------------------------------------------
+  merge:
+    needs: scrape
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Download all shard DBs
+        uses: actions/download-artifact@v4
+        with:
+          path: shards/
+          pattern: shard-*
+
+      - name: Merge shards into final DB
+        run: |
+          python astrology/scrapers/oddsportal/merge_shards.py shards/ tennis_history_full.db
+
+      - name: Upload final DB
+        uses: actions/upload-artifact@v4
+        with:
+          name: tennis-history-final
+          path: tennis_history_full.db
+          retention-days: 30
