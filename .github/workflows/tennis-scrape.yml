@@ -54,9 +54,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 350   # ate ~6h por shard
     strategy:
-      fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        fail-fast: false
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
     steps:
       - uses: actions/checkout@v4
 
@@ -78,7 +78,7 @@ jobs:
       - name: Scrape shard ${{ matrix.shard }}
         env:
           SHARD_ID: ${{ matrix.shard }}
-          TOTAL_SHARDS: 20
+          TOTAL_SHARDS: 60
           DB_PATH_OVERRIDE: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
         run: python astrology/scrapers/oddsportal/scrape_tennis_history.py
 
