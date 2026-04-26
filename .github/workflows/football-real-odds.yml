@@ -76,6 +76,14 @@ jobs:
           pip install ${{ env.REQS }}
           playwright install --with-deps chromium
 
+      - name: Download previous results (Incremental)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p astrology/data/odds
+          gh run download --name real-odds-final --dir astrology/data/odds/ || echo "Nenhum resultado anterior encontrado."
+
       - uses: actions/download-artifact@v4
         with:
           name: discovered-football-leagues

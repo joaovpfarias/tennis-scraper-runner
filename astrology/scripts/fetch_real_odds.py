@@ -117,6 +117,24 @@ def load_targets(date_from, date_to, league_filter=None) -> pd.DataFrame:
     if league_filter:
         cum = cum[cum['league'].str.contains(league_filter, case=False, na=False)]
     tgt = cum[['data', 'home_team', 'away_team', 'league']].drop_duplicates().reset_index(drop=True)
+
+    # Lógica de Checkpoint: Pula o que já existe no real_odds.csv
+    output_path = Path(OUTPUT_PATH_OVERRIDE) if OUTPUT_PATH_OVERRIDE else REAL_ODDS_CSV
+    if output_path.exists():
+        try:
+            existing = pd.read_csv(output_path)
+            # Criar uma chave única para busca rápida
+            existing_keys = set(zip(existing['match_date'], existing['home_team'], existing['away_team']))
+            
+            before_len = len(tgt)
+            tgt = tgt[~tgt.apply(lambda r: (r['data'], r['home_team'], r['away_team']) in existing_keys, axis=1)]
+            after_len = len(tgt)
+            
+            if before_len > after_len:
+                print(f"[checkpoint] Pulando {before_len - after_len} partidas já existentes no CSV.")
+        except Exception as e:
+            print(f"[checkpoint] Aviso ao ler CSV existente: {e}")
+
     return tgt
 
 

@@ -69,6 +69,18 @@ jobs:
           pip install ${{ env.REQS }}
           playwright install --with-deps chromium
 
+      - name: Download previous DB (Incremental)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p astrology/scrapers/oddsportal/data/raw
+          gh run download --name tennis-history-final --dir astrology/scrapers/oddsportal/data/raw/ || echo "Nenhum DB anterior encontrado."
+          # Renomear se necessário (o artefato pode vir com nome diferente do arquivo interno)
+          if [ -f "astrology/scrapers/oddsportal/data/raw/tennis_history_full.db" ]; then
+            mv astrology/scrapers/oddsportal/data/raw/tennis_history_full.db astrology/scrapers/oddsportal/data/raw/tennis_history.db
+          fi
+
       - name: Download discovered slugs
         uses: actions/download-artifact@v4
         with:
