@@ -148,7 +148,9 @@ jobs:
         run: |
           echo "Verificando shards com timeout na run ${{ github.run_id }}..."
 
-          TIMED_OUT=$(gh run view ${{ github.run_id }} --json jobs \
+          TIMED_OUT=$(gh run view ${{ github.run_id }} \
+            --repo ${{ github.repository }} \
+            --json jobs \
             --jq '[.jobs[] | select(.name | test("scrape \\(")) | select(.conclusion == "timed_out" or .conclusion == "failure")] | length')
 
           echo "Shards com timeout/falha: $TIMED_OUT"
@@ -164,6 +166,7 @@ jobs:
 
             echo "Re-disparando workflow (tentativa $ATTEMPT de $MAX_ATTEMPTS)..."
             gh workflow run tennis-scrape.yml \
+              --repo ${{ github.repository }} \
               --ref ${{ github.ref_name }}
           else
             echo "Todos os shards concluiram com sucesso!"
