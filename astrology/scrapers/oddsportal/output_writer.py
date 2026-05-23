@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS events (
     dt_local      TEXT    DEFAULT '',
     score_home    INTEGER,
     score_away    INTEGER,
+    sets_detail   TEXT    DEFAULT '',
     status        TEXT    DEFAULT 'scheduled',
     venue         TEXT    DEFAULT '',
     venue_city    TEXT    DEFAULT '',
@@ -166,20 +167,21 @@ class SQLiteWriter:
         sa_val = int(sa) if sa not in ("", None) else None
         status = row.get("status", "scheduled")
 
+        sets_detail = row.get("sets_detail", "") or ""
         self._con.execute(
             """INSERT OR IGNORE INTO events
                (id, league_id, season, home_id, away_id,
-                dt_utc, dt_local, score_home, score_away, status,
+                dt_utc, dt_local, score_home, score_away, sets_detail, status,
                 venue, venue_city, venue_country, venue_lat, venue_lon,
                 source_url, scraped_at)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 row["event_id"], league_id,
                 row.get("season", ""),
                 home_id, away_id,
                 row.get("event_datetime_utc", ""),
                 row.get("event_datetime_local", ""),
-                sh_val, sa_val, status,
+                sh_val, sa_val, sets_detail, status,
                 row.get("venue", ""),
                 row.get("venue_city", ""),
                 row.get("venue_country", ""),
@@ -189,12 +191,12 @@ class SQLiteWriter:
                 row.get("scraped_at_utc", ""),
             ),
         )
-        # Se o evento ja existia sem placar, atualiza score e status
+        # Se o evento ja existia sem placar, atualiza score/sets/status
         if sh_val is not None:
             self._con.execute(
-                """UPDATE events SET score_home=?, score_away=?, status=?, scraped_at=?
+                """UPDATE events SET score_home=?, score_away=?, sets_detail=?, status=?, scraped_at=?
                    WHERE id=? AND score_home IS NULL""",
-                (sh_val, sa_val, status, row.get("scraped_at_utc", ""), row["event_id"]),
+                (sh_val, sa_val, sets_detail, status, row.get("scraped_at_utc", ""), row["event_id"]),
             )
 
     # ------------------------------------------------------------------ write

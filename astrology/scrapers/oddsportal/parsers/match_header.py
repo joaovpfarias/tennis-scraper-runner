@@ -41,16 +41,15 @@ def parse(html: str) -> dict:
     if gt:
         iso = parse_pt_datetime(gt.get_text(" ", strip=True)) or ""
 
-    score_home, score_away, status = "", "", "scheduled"
+    score_home, score_away, status, sets_detail = "", "", "scheduled", ""
 
     # Placar via live-info: "Resultado final <strong>2:1</strong> (sets detail)"
-    # Funciona para tenis (sets vencidos), futebol, basquete, etc.
     li = soup.select_one('[data-testid="live-info"]')
     if li:
+        # Sets vencidos: extrai do <strong>
         strong = li.find("strong")
         if strong:
             score_txt = strong.get_text(strip=True)
-            # Formato sets/placar: "2:1", "107:98", "2-1", "107-98"
             m = re.match(r'^(\d+)\s*[:\-]\s*(\d+)$', score_txt)
             if m:
                 try:
@@ -59,9 +58,22 @@ def parse(html: str) -> dict:
                     status = "finished"
                 except ValueError:
                     pass
-        # Fallback: texto livre do live-info sem <strong>
+
+        # Sets detalhados: "(6:7, 7:6, 6:2)" \u2014 remove superscripts (tiebreak pts) antes
+        li_copy = BeautifulSoup(str(li), "lxml")
+        for sup in li_copy.find_all("sup"):
+            sup.decompose()
+        li_text = li_copy.get_text(" ", strip=True)
+        paren = re.search(r'\(([^)]+)\)', li_text)
+        if paren and status == "finished":
+            # Normaliza: "6:7, 7:6, 6:2" -> "6-7 7-6 6-2"
+            raw = paren.group(1)
+            sets = re.findall(r'(\d+)\s*[:\-]\s*(\d+)', raw)
+            if sets:
+                sets_detail = " ".join(f"{a}-{b}" for a, b in sets)
+
+        # Fallback: texto livre sem <strong> (outros esportes)
         if status == "scheduled":
-            li_text = li.get_text(" ", strip=True)
             m = re.search(r'(\d+)\s*[:\-]\s*(\d+)', li_text)
             if m and any(kw in li_text for kw in ["Resultado", "Result", "Final", "final"]):
                 try:
@@ -71,7 +83,7 @@ def parse(html: str) -> dict:
                 except ValueError:
                     pass
 
-    # Fallback: game-participants texto livre (futebol/basquete: "Lakers 107 - 98 Rockets")
+    # Fallback: game-participants (futebol/basquete: "Lakers 107 - 98 Rockets")
     if status == "scheduled":
         gp = soup.select_one('[data-testid="game-participants"]')
         if gp:
@@ -94,5 +106,6 @@ def parse(html: str) -> dict:
         "venue_country": "",
         "score_home": score_home,
         "score_away": score_away,
+        "sets_detail": sets_detail,
         "status": status,
     }

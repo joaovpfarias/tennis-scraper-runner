@@ -441,6 +441,7 @@ async def _process_match(
                 "home": home, "away": away,
                 "score_home": header.get("score_home") or m.get("score_home", ""),
                 "score_away": header.get("score_away") or m.get("score_away", ""),
+                "sets_detail": header.get("sets_detail", ""),
                 "status": header.get("status", "scheduled"),
                 "venue": header.get("venue", ""), "venue_city": header.get("venue_city", ""),
                 "venue_country": header.get("venue_country", ""),
