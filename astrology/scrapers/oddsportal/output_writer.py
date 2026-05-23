@@ -162,6 +162,10 @@ class SQLiteWriter:
                       home_id: int, away_id: int) -> None:
         sh = row.get("score_home")
         sa = row.get("score_away")
+        sh_val = int(sh) if sh not in ("", None) else None
+        sa_val = int(sa) if sa not in ("", None) else None
+        status = row.get("status", "scheduled")
+
         self._con.execute(
             """INSERT OR IGNORE INTO events
                (id, league_id, season, home_id, away_id,
@@ -175,9 +179,7 @@ class SQLiteWriter:
                 home_id, away_id,
                 row.get("event_datetime_utc", ""),
                 row.get("event_datetime_local", ""),
-                int(sh) if sh not in ("", None) else None,
-                int(sa) if sa not in ("", None) else None,
-                row.get("status", "scheduled"),
+                sh_val, sa_val, status,
                 row.get("venue", ""),
                 row.get("venue_city", ""),
                 row.get("venue_country", ""),
@@ -187,6 +189,13 @@ class SQLiteWriter:
                 row.get("scraped_at_utc", ""),
             ),
         )
+        # Se o evento ja existia sem placar, atualiza score e status
+        if sh_val is not None:
+            self._con.execute(
+                """UPDATE events SET score_home=?, score_away=?, status=?, scraped_at=?
+                   WHERE id=? AND score_home IS NULL""",
+                (sh_val, sa_val, status, row.get("scraped_at_utc", ""), row["event_id"]),
+            )
 
     # ------------------------------------------------------------------ write
 
