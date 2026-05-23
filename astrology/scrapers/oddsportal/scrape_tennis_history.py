@@ -367,13 +367,14 @@ async def _fetch_cached(br: OddsPortalBrowser, url: str, wait_selector=None) -> 
 # ---------------------------------------------------------------------------
 
 def _already_scraped(db_path: str, league_path: str, season: str) -> bool:
-    """True se (liga, season) ja tem eventos gravados no DB."""
+    """True se (liga, season) ja tem eventos COM placar gravados no DB."""
     try:
         con = sqlite3.connect(db_path)
         row = con.execute("""
             SELECT COUNT(e.id) FROM events e
             JOIN leagues l ON l.id = e.league_id
             WHERE l.path = ? AND e.season = ?
+              AND e.score_home IS NOT NULL AND e.score_home != ''
         """, (league_path, season)).fetchone()
         con.close()
         return (row[0] or 0) > 0
