@@ -21,6 +21,7 @@ MARKETS = {
     "total_sets":        {"tab_label": "Total de Sets",               "tab_slug": "total-sets",           "parser_module": "market_total_sets",        "has_submarket_lines": True},
     "total_games":       {"tab_label": "Total de Games",              "tab_slug": "total-games",          "parser_module": "market_total_games",       "has_submarket_lines": True},
     "exact_score":       {"tab_label": "Resultado correto",           "tab_slug": "correct-score",        "parser_module": "market_exact_score",       "has_submarket_lines": False},
+    "placar_exato":      {"tab_label": "Placar exato",                "tab_slug": "correct-score",        "parser_module": "market_exact_score",       "has_submarket_lines": False},
     "method_of_victory": {"tab_label": "M\u00e9todo de Vit\u00f3ria", "tab_slug": "method-of-victory",    "parser_module": "market_method_of_victory", "has_submarket_lines": False},
 }
 

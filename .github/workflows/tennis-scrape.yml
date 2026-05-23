@@ -123,6 +123,13 @@ jobs:
           path: shards/
           pattern: shard-*
 
+      - name: Download seed DB (dados historicos locais pre-GitHub Actions)
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: tennis-seed-db
+          path: shards/seed/
+
       - name: Merge shards into final DB
         run: |
           python astrology/scrapers/oddsportal/merge_shards.py shards/ tennis_history_full.db

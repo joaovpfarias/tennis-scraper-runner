@@ -41,6 +41,11 @@ def _build_leagues_mapping(main: sqlite3.Connection, src: sqlite3.Connection,
     return mapping
 
 
+def _has_column(con: sqlite3.Connection, table: str, column: str) -> bool:
+    cols = [r[1] for r in con.execute(f"PRAGMA table_info({table})")]
+    return column in cols
+
+
 def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
     """Merge de um DB shard no DB principal. Retorna stats."""
     src = sqlite3.connect(shard_path)
@@ -52,11 +57,13 @@ def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
     # 2) Leagues (FK pra sports)
     leagues_map = _build_leagues_mapping(main, src, maps["sports"])
 
-    # 3) Events
+    # 3) Events — suporta DBs antigos sem sets_detail
+    has_sets = _has_column(src, "events", "sets_detail")
+    sets_col = ", sets_detail" if has_sets else ""
     ev_inserted = 0
-    for row in src.execute("""
+    for row in src.execute(f"""
         SELECT id, league_id, season, home_id, away_id, dt_utc, dt_local,
-               score_home, score_away, status, venue, venue_city, venue_country,
+               score_home, score_away{sets_col}, status, venue, venue_city, venue_country,
                venue_lat, venue_lon, source_url, scraped_at
         FROM events
     """):
@@ -65,13 +72,32 @@ def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
         new_away = maps["teams"].get(row[4])
         if new_league is None or new_home is None or new_away is None:
             continue
-        cur = main.execute("""
-            INSERT OR IGNORE INTO events(
-                id, league_id, season, home_id, away_id, dt_utc, dt_local,
-                score_home, score_away, status, venue, venue_city, venue_country,
-                venue_lat, venue_lon, source_url, scraped_at
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        """, (row[0], new_league, row[2], new_home, new_away, *row[5:]))
+        if has_sets:
+            # row: id, league, season, home, away, dt_utc, dt_local, sh, sa, sets, status, ...
+            vals = (row[0], new_league, row[2], new_home, new_away,
+                    row[5], row[6], row[7], row[8], row[9], row[10],
+                    row[11], row[12], row[13], row[14], row[15], row[16], row[17])
+            cur = main.execute("""
+                INSERT OR IGNORE INTO events(
+                    id, league_id, season, home_id, away_id, dt_utc, dt_local,
+                    score_home, score_away, sets_detail, status,
+                    venue, venue_city, venue_country, venue_lat, venue_lon,
+                    source_url, scraped_at
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """, vals)
+        else:
+            # DB antigo sem sets_detail: insere com sets_detail=''
+            vals = (row[0], new_league, row[2], new_home, new_away,
+                    row[5], row[6], row[7], row[8], "", row[9],
+                    row[10], row[11], row[12], row[13], row[14], row[15], row[16])
+            cur = main.execute("""
+                INSERT OR IGNORE INTO events(
+                    id, league_id, season, home_id, away_id, dt_utc, dt_local,
+                    score_home, score_away, sets_detail, status,
+                    venue, venue_city, venue_country, venue_lat, venue_lon,
+                    source_url, scraped_at
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """, vals)
         ev_inserted += cur.rowcount
 
     # 4) Odds (FKs: market, submkt, outcome, bookmaker)

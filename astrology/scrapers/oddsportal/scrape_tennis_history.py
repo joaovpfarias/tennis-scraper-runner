@@ -41,7 +41,14 @@ DB_PATH       = os.environ.get("DB_PATH_OVERRIDE") or str(Path(__file__).parent 
 BASE_URL      = "https://www.oddsagora.com.br"
 SPORT_KEY     = "tennis"
 SPORT_SLUG    = "tennis"
-MARKETS       = ["home_away", "asian_handicap", "over_under"]   # mercados de tenis
+MARKETS       = [
+    "home_away",       # Home/Away — moneyline principal
+    "over_under",      # Acima/Abaixo — total de games/sets
+    "asian_handicap",  # Handicap Asiatico
+    "placar_exato",    # Placar exato — 2:0 / 2:1 (sets) — especifico de tenis
+    "total_sets",      # Total de Sets — quando disponivel (depende do torneio)
+    "total_games",     # Total de Games — quando disponivel
+]
 
 # Anos para tentar com sufixo de season - ordem REVERSA (mais recente primeiro)
 # Combinado com early-stop: torneios discontinuados nao gastam 16 fetches.
@@ -382,8 +389,12 @@ def _already_scraped(db_path: str, league_path: str, season: str) -> bool:
         return False
 
 
-def _league_zero_events(db_path: str, league_path: str) -> list[dict]:
-    """Retorna eventos da liga que estao no DB sem nenhuma odd gravada."""
+def _league_incomplete_events(db_path: str, league_path: str) -> list[dict]:
+    """
+    Retorna eventos da liga que estao no DB sem odds para pelo menos um
+    mercado obrigatorio (home_away). Cobre tanto eventos sem nenhuma odd
+    quanto eventos onde o fetch da pagina principal falhou.
+    """
     try:
         con = sqlite3.connect(db_path)
         rows = con.execute("""
@@ -393,8 +404,12 @@ def _league_zero_events(db_path: str, league_path: str) -> list[dict]:
             JOIN leagues l  ON l.id = e.league_id
             JOIN teams   th ON th.id = e.home_id
             JOIN teams   ta ON ta.id = e.away_id
-            LEFT JOIN odds o ON o.event_id = e.id
-            WHERE l.path = ? AND o.event_id IS NULL AND e.source_url != ''
+            WHERE l.path = ? AND e.source_url != ''
+              AND NOT EXISTS (
+                SELECT 1 FROM odds o
+                JOIN markets m ON m.id = o.market_id
+                WHERE o.event_id = e.id AND m.name = 'home_away'
+              )
         """, (league_path,)).fetchall()
         con.close()
         return [
@@ -543,13 +558,13 @@ async def scrape_league(
             ]
             await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Backfill: re-raspa eventos da liga que ficaram sem odds
-        zero = _league_zero_events(str(writer.path), league_path)
-        if zero:
-            print(f"  [backfill] {len(zero)} eventos sem odds em {league_path}")
+        # Backfill: re-raspa eventos sem home_away odds (pagina principal falhou)
+        incomplete = _league_incomplete_events(str(writer.path), league_path)
+        if incomplete:
+            print(f"  [backfill] {len(incomplete)} eventos sem home_away odds em {league_path}")
             bf_tasks = [
-                _process_match(br, ev, league_path, ev["season"], writer, match_sem, i, len(zero))
-                for i, ev in enumerate(zero, 1)
+                _process_match(br, ev, league_path, ev["season"], writer, match_sem, i, len(incomplete))
+                for i, ev in enumerate(incomplete, 1)
             ]
             await asyncio.gather(*bf_tasks, return_exceptions=True)
 
