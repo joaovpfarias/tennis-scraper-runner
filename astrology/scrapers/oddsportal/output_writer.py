@@ -84,12 +84,14 @@ CREATE TABLE IF NOT EXISTS odds (
     PRIMARY KEY (event_id, market_id, submarket_id, outcome_id, bookmaker_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_odds_event    ON odds(event_id);
-CREATE INDEX IF NOT EXISTS idx_odds_market   ON odds(market_id);
-CREATE INDEX IF NOT EXISTS idx_events_league ON events(league_id);
-CREATE INDEX IF NOT EXISTS idx_events_dt     ON events(dt_utc);
-CREATE INDEX IF NOT EXISTS idx_events_home   ON events(home_id);
-CREATE INDEX IF NOT EXISTS idx_events_away   ON events(away_id);
+CREATE INDEX IF NOT EXISTS idx_odds_event      ON odds(event_id);
+CREATE INDEX IF NOT EXISTS idx_odds_market     ON odds(market_id);
+CREATE INDEX IF NOT EXISTS idx_events_league   ON events(league_id);
+CREATE INDEX IF NOT EXISTS idx_events_dt       ON events(dt_utc);
+CREATE INDEX IF NOT EXISTS idx_events_home     ON events(home_id);
+CREATE INDEX IF NOT EXISTS idx_events_away     ON events(away_id);
+CREATE INDEX IF NOT EXISTS idx_events_src_url  ON events(source_url);
+CREATE INDEX IF NOT EXISTS idx_events_score    ON events(score_home);
 """
 
 # ---------------------------------------------------------------------------

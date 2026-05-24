@@ -2,11 +2,6 @@ name: Tennis Scrape (parallel)
 
 on:
   workflow_dispatch:
-    inputs:
-      shards:
-        description: 'Numero de shards paralelos (max 20 free)'
-        default: '20'
-        required: true
 
 permissions:
   contents: read
@@ -15,6 +10,7 @@ permissions:
 env:
   PYTHON_VERSION: '3.12'
   REQS: 'playwright playwright-stealth tenacity beautifulsoup4 lxml python-dateutil'
+  TOTAL_SHARDS: 20
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -48,16 +44,16 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------------------
-  # 2) Scrape: 20 jobs paralelos, cada um processa 1/20 dos torneios
+  # 2) Scrape: 20 jobs paralelos (limite free tier GitHub Actions)
   # ---------------------------------------------------------------------------
   scrape:
     needs: discover
     runs-on: ubuntu-latest
-    timeout-minutes: 350   # ate ~6h por shard
+    timeout-minutes: 350
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
     steps:
       - uses: actions/checkout@v4
 
@@ -70,15 +66,14 @@ jobs:
           pip install ${{ env.REQS }}
           playwright install --with-deps chromium
 
-      - name: Download previous shard DB (Incremental)
+      - name: Download shard anterior (incremental)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Baixa o DB do proprio shard da run anterior para aproveitar checkpoint _already_scraped
           gh run download \
             --name shard-${{ matrix.shard }} \
-            --dir ${{ github.workspace }}/ || echo "Nenhum shard-${{ matrix.shard }} anterior encontrado — iniciando do zero."
+            --dir ${{ github.workspace }}/ || echo "Nenhum shard-${{ matrix.shard }} anterior — iniciando do zero."
 
       - name: Download discovered slugs
         uses: actions/download-artifact@v4
@@ -86,11 +81,19 @@ jobs:
           name: discovered-slugs
           path: astrology/scrapers/oddsportal/data/raw/
 
+      - name: Download incomplete manifest (retry run)
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: incomplete-leagues
+          path: ${{ github.workspace }}/
+
       - name: Scrape shard ${{ matrix.shard }}
         env:
           SHARD_ID: ${{ matrix.shard }}
-          TOTAL_SHARDS: 60
+          TOTAL_SHARDS: ${{ env.TOTAL_SHARDS }}
           DB_PATH_OVERRIDE: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
+          INCOMPLETE_MANIFEST: ${{ github.workspace }}/incomplete_leagues.json
         run: python astrology/scrapers/oddsportal/scrape_tennis_history.py
 
       - name: Upload shard DB
@@ -103,7 +106,7 @@ jobs:
           if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
-  # 3) Merge: junta os 20 DBs num so e publica como artifact final
+  # 3) Merge: junta os 20 DBs + seed historico num so DB final
   # ---------------------------------------------------------------------------
   merge:
     needs: scrape
@@ -117,64 +120,93 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install deps
+        run: pip install ${{ env.REQS }}
+
       - name: Download all shard DBs
         uses: actions/download-artifact@v4
         with:
           path: shards/
           pattern: shard-*
 
-      - name: Download seed DB (dados historicos locais pre-GitHub Actions)
+      - name: Download seed DB (dados historicos pre-GitHub Actions)
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: tennis-seed-db
           path: shards/seed/
 
-      - name: Merge shards into final DB
+      - name: Merge shards + seed no DB final
         run: |
           python astrology/scrapers/oddsportal/merge_shards.py shards/ tennis_history_full.db
 
-      - name: Upload final DB
+      - name: Quality gate — gera lista de ligas incompletas
+        id: quality
+        run: |
+          python astrology/scrapers/oddsportal/quality_check.py tennis_history_full.db incomplete_leagues.json
+          echo "incomplete_count=$(python -c \"import json; d=json.load(open('incomplete_leagues.json')); print(len(d))\")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload DB final
         uses: actions/upload-artifact@v4
         with:
           name: tennis-history-final
           path: tennis_history_full.db
           retention-days: 90
 
+      - name: Upload incomplete leagues manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: incomplete-leagues
+          path: incomplete_leagues.json
+          retention-days: 90
+          if-no-files-found: ignore
+
   # ---------------------------------------------------------------------------
-  # 4) Continue: re-dispara o workflow se algum shard deu timeout
+  # 4) Continue: re-dispara o workflow se houver ligas incompletas
   # ---------------------------------------------------------------------------
   continue:
     needs: merge
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Verificar shards com timeout e re-disparar
+      - name: Verificar se ha ligas incompletas e re-disparar
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Verificando shards com timeout na run ${{ github.run_id }}..."
+          echo "Verificando completude da run ${{ github.run_id }}..."
 
+          # Conta shards com timeout ou falha
           TIMED_OUT=$(gh run view ${{ github.run_id }} \
             --repo ${{ github.repository }} \
             --json jobs \
             --jq '[.jobs[] | select(.name | test("scrape \\(")) | select(.conclusion == "timed_out" or .conclusion == "failure")] | length')
 
-          echo "Shards com timeout/falha: $TIMED_OUT"
+          # Verifica se o quality gate encontrou incompletos
+          INCOMPLETE_COUNT=0
+          gh run download ${{ github.run_id }} \
+            --repo ${{ github.repository }} \
+            --name incomplete-leagues \
+            --dir /tmp/manifest/ 2>/dev/null || true
+          if [ -f /tmp/manifest/incomplete_leagues.json ]; then
+            INCOMPLETE_COUNT=$(python3 -c "import json; print(len(json.load(open('/tmp/manifest/incomplete_leagues.json'))))")
+          fi
 
-          if [ "$TIMED_OUT" -gt "0" ]; then
-            # Limite de tentativas via run attempt para evitar loop infinito
-            ATTEMPT=${{ github.run_attempt }}
-            MAX_ATTEMPTS=20
+          echo "Shards com timeout/falha: $TIMED_OUT"
+          echo "Ligas incompletas: $INCOMPLETE_COUNT"
+
+          ATTEMPT=${{ github.run_attempt }}
+          MAX_ATTEMPTS=20
+
+          if [ "$TIMED_OUT" -gt "0" ] || [ "$INCOMPLETE_COUNT" -gt "0" ]; then
             if [ "$ATTEMPT" -ge "$MAX_ATTEMPTS" ]; then
-              echo "Atingido limite de $MAX_ATTEMPTS tentativas automaticas. Parando."
+              echo "Atingido limite de $MAX_ATTEMPTS tentativas. Parando."
               exit 0
             fi
-
             echo "Re-disparando workflow (tentativa $ATTEMPT de $MAX_ATTEMPTS)..."
             gh workflow run tennis-scrape.yml \
               --repo ${{ github.repository }} \
               --ref ${{ github.ref_name }}
           else
-            echo "Todos os shards concluiram com sucesso!"
+            echo "Todos os dados completos! Nenhuma re-execucao necessaria."
           fi

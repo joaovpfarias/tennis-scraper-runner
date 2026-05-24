@@ -52,7 +52,7 @@ MARKETS       = [
 
 # Anos para tentar com sufixo de season - ordem REVERSA (mais recente primeiro)
 # Combinado com early-stop: torneios discontinuados nao gastam 16 fetches.
-SEASON_YEARS  = list(range(2026, 2011, -1))   # 2026, 2025, ..., 2012
+SEASON_YEARS  = list(range(2026, 2004, -1))   # 2026, 2025, ..., 2005 (early-stop automatico)
 SEASON_SUFFIXES = [None] + [str(y) for y in SEASON_YEARS]
 
 PARALLEL_LEAGUES  = 1   # 1 torneio por vez (evita travar a maquina)
@@ -373,27 +373,30 @@ async def _fetch_cached(br: OddsPortalBrowser, url: str, wait_selector=None) -> 
 # Checkpoint e Backfill
 # ---------------------------------------------------------------------------
 
-def _already_scraped(db_path: str, league_path: str, season: str) -> bool:
-    """True se (liga, season) ja tem eventos COM placar gravados no DB."""
+def _scraped_urls(db_path: str, league_path: str, season: str) -> set:
+    """Retorna set de source_url de eventos ja completos: tem score E home_away odds."""
     try:
         con = sqlite3.connect(db_path)
-        row = con.execute("""
-            SELECT COUNT(e.id) FROM events e
+        rows = con.execute("""
+            SELECT DISTINCT e.source_url FROM events e
             JOIN leagues l ON l.id = e.league_id
             WHERE l.path = ? AND e.season = ?
               AND e.score_home IS NOT NULL AND e.score_home != ''
-        """, (league_path, season)).fetchone()
+              AND EXISTS (
+                SELECT 1 FROM odds o JOIN markets m ON m.id = o.market_id
+                WHERE o.event_id = e.id AND m.name = 'home_away'
+              )
+        """, (league_path, season)).fetchall()
         con.close()
-        return (row[0] or 0) > 0
+        return {r[0] for r in rows}
     except Exception:
-        return False
+        return set()
 
 
 def _league_incomplete_events(db_path: str, league_path: str) -> list[dict]:
     """
-    Retorna eventos da liga que estao no DB sem odds para pelo menos um
-    mercado obrigatorio (home_away). Cobre tanto eventos sem nenhuma odd
-    quanto eventos onde o fetch da pagina principal falhou.
+    Retorna eventos da liga que estao no DB sem score OU sem home_away odds.
+    Cobre: fetch da pagina principal falhou, score nao parseado, odds ausentes.
     """
     try:
         con = sqlite3.connect(db_path)
@@ -405,10 +408,12 @@ def _league_incomplete_events(db_path: str, league_path: str) -> list[dict]:
             JOIN teams   th ON th.id = e.home_id
             JOIN teams   ta ON ta.id = e.away_id
             WHERE l.path = ? AND e.source_url != ''
-              AND NOT EXISTS (
-                SELECT 1 FROM odds o
-                JOIN markets m ON m.id = o.market_id
-                WHERE o.event_id = e.id AND m.name = 'home_away'
+              AND (
+                e.score_home IS NULL OR e.score_home = ''
+                OR NOT EXISTS (
+                  SELECT 1 FROM odds o JOIN markets m ON m.id = o.market_id
+                  WHERE o.event_id = e.id AND m.name = 'home_away'
+                )
               )
         """, (league_path,)).fetchall()
         con.close()
@@ -521,11 +526,6 @@ async def scrape_league(
         for suffix in SEASON_SUFFIXES:
             season_str = suffix or ""
 
-            # Checkpoint: pula se ja raspado
-            if _already_scraped(str(writer.path), league_path, season_str):
-                print(f"  [skip] {league_path} season={season_str or 'atual'} ja no DB")
-                continue
-
             results_url = url_builder.build_results_url(SPORT_SLUG, league_path, suffix)
             print(f"  [listing] season={season_str or 'atual'}")
 
@@ -551,17 +551,24 @@ async def scrape_league(
                 print(f"  [vazio] sem matches em {results_url}")
                 continue
 
-            print(f"  {len(all_matches)} matches na season '{season_str or 'atual'}'")
+            # Checkpoint por jogo: pula apenas os ja completos (score + home_away odds)
+            done_urls = _scraped_urls(str(writer.path), league_path, season_str)
+            matches_to_process = [m for m in all_matches if m["match_url"] not in done_urls]
+            if not matches_to_process:
+                print(f"  [skip] {league_path} season={season_str or 'atual'} — todos {len(all_matches)} ja completos")
+                continue
+
+            print(f"  {len(matches_to_process)}/{len(all_matches)} jogos a raspar (season '{season_str or 'atual'}')")
             tasks = [
-                _process_match(br, m, league_path, season_str, writer, match_sem, i, len(all_matches))
-                for i, m in enumerate(all_matches, 1)
+                _process_match(br, m, league_path, season_str, writer, match_sem, i, len(matches_to_process))
+                for i, m in enumerate(matches_to_process, 1)
             ]
             await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Backfill: re-raspa eventos sem home_away odds (pagina principal falhou)
+        # Backfill: re-raspa eventos sem score OU sem home_away odds
         incomplete = _league_incomplete_events(str(writer.path), league_path)
         if incomplete:
-            print(f"  [backfill] {len(incomplete)} eventos sem home_away odds em {league_path}")
+            print(f"  [backfill] {len(incomplete)} eventos incompletos (sem score ou odds) em {league_path}")
             bf_tasks = [
                 _process_match(br, ev, league_path, ev["season"], writer, match_sem, i, len(incomplete))
                 for i, ev in enumerate(incomplete, 1)
@@ -604,6 +611,15 @@ async def main():
         if TOTAL_SHARDS > 1:
             all_leagues = [s for i, s in enumerate(all_leagues) if i % TOTAL_SHARDS == SHARD_ID]
             print(f"[shard {SHARD_ID}/{TOTAL_SHARDS}] {len(all_leagues)} torneios neste shard")
+
+        # Filtro por manifest de incompletos (retry run)
+        manifest_path = os.environ.get("INCOMPLETE_MANIFEST")
+        if manifest_path and Path(manifest_path).exists():
+            import json as _json
+            incomplete_manifest = _json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+            slugs = {e["league"] for e in incomplete_manifest}
+            all_leagues = [l for l in all_leagues if l in slugs]
+            print(f"[manifest] Retry restrito a {len(all_leagues)} ligas incompletas")
 
         # --- Fase 2: scraping de todos os torneios ---
         league_sem = asyncio.Semaphore(PARALLEL_LEAGUES)

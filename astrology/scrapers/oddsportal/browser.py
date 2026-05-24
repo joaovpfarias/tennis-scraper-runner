@@ -37,7 +37,7 @@ USER_AGENTS = [
 ]
 
 NAV_TIMEOUT_MS  = 30_000
-WAIT_TIMEOUT_MS = 5_000
+WAIT_TIMEOUT_MS = 15_000
 ODDS_WAIT_SELECTOR = '[data-testid="over-under-expanded-row"], [data-testid="navigation-active-tab"]'
 
 

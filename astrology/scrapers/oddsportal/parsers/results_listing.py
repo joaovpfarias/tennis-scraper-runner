@@ -92,21 +92,37 @@ def parse(html: str, base_url: str = BASE_URL) -> list[dict]:
         ti = el.select_one('[data-testid="time-item"]')
         time_str = ti.get_text(strip=True) if ti else "00:00"
         # game-row pode ter formato "22:30" ou "Finalizado"
-        if not re.match(r'^\d{1,2}:\d{2}$', time_str):
+        is_finished = not re.match(r'^\d{1,2}:\d{2}$', time_str)
+        status = "finished" if is_finished else "scheduled"
+        if is_finished:
             time_str = "00:00"
 
         # Concatena para parse: "Hoje, 19 Abr 22:30" ou "17 Abr 2026 22:30"
         combined = f"{last_date_str} {time_str}" if last_date_str else time_str
         iso = parse_pt_datetime(combined) or ""
 
+        # Tenta extrair placar da linha (oddsagora mostra scores em resultados)
+        score_home, score_away = "", ""
+        if is_finished:
+            score_el = el.select_one('[data-testid="result-score"], [data-testid="score"]')
+            if score_el:
+                sm = re.match(r'^(\d+)\s*[:\-]\s*(\d+)$', score_el.get_text(strip=True))
+                if sm:
+                    score_home, score_away = sm.group(1), sm.group(2)
+            if not score_home:
+                row_text = el.get_text(" ", strip=True)
+                sm2 = re.search(r'(?<![:\d])(\d{1,2})\s*:\s*(\d{1,2})(?![:\d])', row_text)
+                if sm2 and not re.match(r'^\d{2}:\d{2}$', sm2.group(0)):
+                    score_home, score_away = sm2.group(1), sm2.group(2)
+
         out.append({
             "match_url": match_url,
             "event_datetime_utc": iso,
             "home": home,
             "away": away,
-            "score_home": "",
-            "score_away": "",
-            "status": "scheduled",
+            "score_home": score_home,
+            "score_away": score_away,
+            "status": status,
         })
 
     # Deduplica por match_url (podem aparecer duplicatas na iteracao)

@@ -58,6 +58,7 @@ def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
     leagues_map = _build_leagues_mapping(main, src, maps["sports"])
 
     # 3) Events — suporta DBs antigos sem sets_detail
+    # Upsert: evento com score vence sobre evento sem score (seed com historico ganha)
     has_sets = _has_column(src, "events", "sets_detail")
     sets_col = ", sets_detail" if has_sets else ""
     ev_inserted = 0
@@ -73,31 +74,34 @@ def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
         if new_league is None or new_home is None or new_away is None:
             continue
         if has_sets:
-            # row: id, league, season, home, away, dt_utc, dt_local, sh, sa, sets, status, ...
             vals = (row[0], new_league, row[2], new_home, new_away,
                     row[5], row[6], row[7], row[8], row[9], row[10],
                     row[11], row[12], row[13], row[14], row[15], row[16], row[17])
-            cur = main.execute("""
-                INSERT OR IGNORE INTO events(
-                    id, league_id, season, home_id, away_id, dt_utc, dt_local,
-                    score_home, score_away, sets_detail, status,
-                    venue, venue_city, venue_country, venue_lat, venue_lon,
-                    source_url, scraped_at
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            """, vals)
         else:
-            # DB antigo sem sets_detail: insere com sets_detail=''
             vals = (row[0], new_league, row[2], new_home, new_away,
                     row[5], row[6], row[7], row[8], "", row[9],
                     row[10], row[11], row[12], row[13], row[14], row[15], row[16])
-            cur = main.execute("""
-                INSERT OR IGNORE INTO events(
-                    id, league_id, season, home_id, away_id, dt_utc, dt_local,
-                    score_home, score_away, sets_detail, status,
-                    venue, venue_city, venue_country, venue_lat, venue_lon,
-                    source_url, scraped_at
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            """, vals)
+        cur = main.execute("""
+            INSERT INTO events(
+                id, league_id, season, home_id, away_id, dt_utc, dt_local,
+                score_home, score_away, sets_detail, status,
+                venue, venue_city, venue_country, venue_lat, venue_lon,
+                source_url, scraped_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ON CONFLICT(id) DO UPDATE SET
+                score_home  = CASE WHEN events.score_home IS NULL OR events.score_home = ''
+                                        AND (excluded.score_home IS NOT NULL AND excluded.score_home != '')
+                                   THEN excluded.score_home ELSE events.score_home END,
+                score_away  = CASE WHEN events.score_home IS NULL OR events.score_home = ''
+                                        AND (excluded.score_away IS NOT NULL AND excluded.score_away != '')
+                                   THEN excluded.score_away ELSE events.score_away END,
+                sets_detail = CASE WHEN (events.score_home IS NULL OR events.score_home = '')
+                                        AND excluded.sets_detail != ''
+                                   THEN excluded.sets_detail ELSE events.sets_detail END,
+                status      = CASE WHEN (events.score_home IS NULL OR events.score_home = '')
+                                        AND excluded.status = 'finished'
+                                   THEN excluded.status ELSE events.status END
+        """, vals)
         ev_inserted += cur.rowcount
 
     # 4) Odds (FKs: market, submkt, outcome, bookmaker)
@@ -142,8 +146,11 @@ def main():
     main_con.executescript(DDL)
     main_con.commit()
 
-    # Encontra todos os DBs nos subdiretorios baixados como artifacts
-    shard_dbs = sorted(shards_dir.rglob("*.db"))
+    # Shards primeiro, seed por ultimo — upsert garante que seed (com scores) vence
+    shard_dbs = (
+        sorted(shards_dir.rglob("shard-*.db")) +
+        [p for p in sorted(shards_dir.rglob("*.db")) if "shard-" not in p.name]
+    )
     if not shard_dbs:
         print(f"[ERRO] Nenhum .db encontrado em {shards_dir}")
         sys.exit(2)
