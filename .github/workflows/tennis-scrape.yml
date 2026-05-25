@@ -2,6 +2,11 @@ name: Tennis Scrape (parallel)
 
 on:
   workflow_dispatch:
+    inputs:
+      attempt:
+        description: 'Tentativa (auto-incrementado pelo job continue — nao editar manualmente)'
+        default: '1'
+        required: false
 
 permissions:
   contents: read
@@ -66,14 +71,28 @@ jobs:
           pip install ${{ env.REQS }}
           playwright install --with-deps chromium
 
+      # FIX: busca shard da ultima run *concluida* (nao da run atual, que nao tem nada ainda)
       - name: Download shard anterior (incremental)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download \
-            --name shard-${{ matrix.shard }} \
-            --dir ${{ github.workspace }}/ || echo "Nenhum shard-${{ matrix.shard }} anterior — iniciando do zero."
+          LAST_RUN=$(gh run list \
+            --workflow tennis-scrape.yml \
+            --repo ${{ github.repository }} \
+            --status completed \
+            --json databaseId \
+            --limit 1 \
+            --jq '.[0].databaseId')
+          if [ -n "$LAST_RUN" ] && [ "$LAST_RUN" != "null" ]; then
+            echo "Baixando shard-${{ matrix.shard }} da run $LAST_RUN..."
+            gh run download "$LAST_RUN" \
+              --repo ${{ github.repository }} \
+              --name shard-${{ matrix.shard }} \
+              --dir ${{ github.workspace }}/ || echo "Shard-${{ matrix.shard }} nao encontrado na run $LAST_RUN — iniciando do zero."
+          else
+            echo "Nenhuma run anterior encontrada — iniciando do zero."
+          fi
 
       - name: Download discovered slugs
         uses: actions/download-artifact@v4
@@ -81,12 +100,27 @@ jobs:
           name: discovered-slugs
           path: astrology/scrapers/oddsportal/data/raw/
 
+      # FIX: busca manifest de ligas incompletas da ultima run *concluida*
       - name: Download incomplete manifest (retry run)
         continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: incomplete-leagues
-          path: ${{ github.workspace }}/
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LAST_RUN=$(gh run list \
+            --workflow tennis-scrape.yml \
+            --repo ${{ github.repository }} \
+            --status completed \
+            --json databaseId \
+            --limit 1 \
+            --jq '.[0].databaseId')
+          if [ -n "$LAST_RUN" ] && [ "$LAST_RUN" != "null" ]; then
+            gh run download "$LAST_RUN" \
+              --repo ${{ github.repository }} \
+              --name incomplete-leagues \
+              --dir ${{ github.workspace }}/ || echo "Sem manifest de ligas incompletas na run $LAST_RUN."
+          else
+            echo "Nenhuma run anterior — full scan."
+          fi
 
       - name: Scrape shard ${{ matrix.shard }}
         env:
@@ -140,13 +174,17 @@ jobs:
         run: |
           python astrology/scrapers/oddsportal/merge_shards.py shards/ tennis_history_full.db
 
+      # FIX: continue-on-error para nao bloquear o upload do DB quando ha incompletos
       - name: Quality gate — gera lista de ligas incompletas
         id: quality
+        continue-on-error: true
         run: |
           python astrology/scrapers/oddsportal/quality_check.py tennis_history_full.db incomplete_leagues.json
           echo "incomplete_count=$(python -c \"import json; d=json.load(open('incomplete_leagues.json')); print(len(d))\")" >> "$GITHUB_OUTPUT"
 
+      # FIX: if: always() garante que o DB e salvo mesmo com quality gate falhando
       - name: Upload DB final
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tennis-history-final
@@ -195,18 +233,21 @@ jobs:
           echo "Shards com timeout/falha: $TIMED_OUT"
           echo "Ligas incompletas: $INCOMPLETE_COUNT"
 
-          ATTEMPT=${{ github.run_attempt }}
+          # FIX: usa o input 'attempt' que persiste entre runs (run_attempt reseta para 1 em cada novo dispatch)
+          ATTEMPT=${{ github.event.inputs.attempt || '1' }}
           MAX_ATTEMPTS=20
 
           if [ "$TIMED_OUT" -gt "0" ] || [ "$INCOMPLETE_COUNT" -gt "0" ]; then
             if [ "$ATTEMPT" -ge "$MAX_ATTEMPTS" ]; then
-              echo "Atingido limite de $MAX_ATTEMPTS tentativas. Parando."
+              echo "Atingido limite de $MAX_ATTEMPTS tentativas automaticas. Parando."
               exit 0
             fi
-            echo "Re-disparando workflow (tentativa $ATTEMPT de $MAX_ATTEMPTS)..."
+            NEXT_ATTEMPT=$((ATTEMPT + 1))
+            echo "Re-disparando workflow (tentativa $NEXT_ATTEMPT de $MAX_ATTEMPTS)..."
             gh workflow run tennis-scrape.yml \
               --repo ${{ github.repository }} \
-              --ref ${{ github.ref_name }}
+              --ref ${{ github.ref_name }} \
+              --field attempt="$NEXT_ATTEMPT"
           else
             echo "Todos os dados completos! Nenhuma re-execucao necessaria."
           fi
