@@ -157,12 +157,34 @@ def main():
 
     print(f"[merge] {len(shard_dbs)} DBs para mergear:")
     totals = {"events": 0, "odds": 0}
+    skipped = 0
     for db_path in shard_dbs:
+        # Pula DBs vazios ou sem schema (shard que nao produziu dados)
+        try:
+            chk = sqlite3.connect(str(db_path))
+            tables = {r[0] for r in chk.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            chk.close()
+            if "sports" not in tables:
+                print(f"  -> {db_path} [PULADO — sem schema]")
+                skipped += 1
+                continue
+        except Exception as e:
+            print(f"  -> {db_path} [PULADO — {e}]")
+            skipped += 1
+            continue
+
         print(f"  -> {db_path}")
-        stats = merge_shard(main_con, str(db_path))
-        totals["events"] += stats["events"]
-        totals["odds"] += stats["odds"]
-        print(f"     +{stats['events']} eventos, +{stats['odds']} odds")
+        try:
+            stats = merge_shard(main_con, str(db_path))
+            totals["events"] += stats["events"]
+            totals["odds"] += stats["odds"]
+            print(f"     +{stats['events']} eventos, +{stats['odds']} odds")
+        except Exception as e:
+            print(f"     [ERRO ao mergear: {e}]")
+            skipped += 1
+
+    if skipped:
+        print(f"[merge] {skipped} shard(s) pulados (vazios ou corrompidos)")
 
     # Stats finais
     final = {}
