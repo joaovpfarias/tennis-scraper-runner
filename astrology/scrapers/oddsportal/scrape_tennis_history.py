@@ -52,7 +52,7 @@ MARKETS       = [
 
 # Anos para tentar com sufixo de season - ordem REVERSA (mais recente primeiro)
 # Combinado com early-stop: torneios discontinuados nao gastam 16 fetches.
-SEASON_YEARS  = list(range(2026, 2004, -1))   # 2026, 2025, ..., 2005 (early-stop automatico)
+SEASON_YEARS  = list(range(2026, 1997, -1))   # 2026, 2025, ..., 1998 (early-stop automatico)
 SEASON_SUFFIXES = [None] + [str(y) for y in SEASON_YEARS]
 
 PARALLEL_LEAGUES  = 1   # 1 torneio por vez (evita travar a maquina)
@@ -62,6 +62,124 @@ USE_CACHE         = True
 DISCOVERY_MAX_PAGES = 150       # paginas maximas a varrer na fase de discovery
 DISCOVERY_CACHE_FILE = str(Path(__file__).parent / "data" / "raw" / "discovered_tennis_leagues.json")
 DISCOVERY_CACHE_TTL  = 30 * 24 * 3600  # 30 dias
+
+# ---------------------------------------------------------------------------
+# Venue derivation (country/city from league slug — site nao fornece diretamente)
+# ---------------------------------------------------------------------------
+
+LEAGUE_CITY_OVERRIDES: dict[str, str] = {
+    "france/atp-french-open":        "Paris",
+    "france/wta-aberto-da-franca":   "Paris",
+    "france/wta-french-open":        "Paris",
+    "australia/atp-australian-open": "Melbourne",
+    "australia/wta-australian-open": "Melbourne",
+    "united-kingdom/atp-wimbledon":  "Wimbledon",
+    "united-kingdom/wta-wimbledon":  "Wimbledon",
+    "usa/atp-us-open":               "New York",
+    "usa/wta-us-open":               "New York",
+    "usa/atp-indian-wells":          "Indian Wells",
+    "usa/wta-indian-wells":          "Indian Wells",
+    "usa/atp-miami":                 "Miami",
+    "usa/wta-miami":                 "Miami",
+    "usa/atp-cincinnati":            "Cincinnati",
+    "usa/wta-cincinnati":            "Cincinnati",
+    "usa/atp-washington":            "Washington",
+    "usa/atp-houston":               "Houston",
+    "usa/atp-new-haven":             "New Haven",
+    "usa/wta-new-haven":             "New Haven",
+    "monaco/atp-monte-carlo":        "Monte Carlo",
+    "spain/atp-madri":               "Madrid",
+    "spain/wta-madri":               "Madrid",
+    "spain/atp-barcelona":           "Barcelona",
+    "spain/atp-valencia":            "Valencia",
+    "italy/atp-roma":                "Rome",
+    "italy/wta-roma":                "Rome",
+    "china/atp-xangai":              "Shanghai",
+    "china/atp-pequim":              "Beijing",
+    "china/wta-pequim":              "Beijing",
+    "china/wta-wuhan":               "Wuhan",
+    "china/wta-zhuhai":              "Zhuhai",
+    "france/atp-paris-bercy":        "Paris",
+    "germany/atp-hamburgo":          "Hamburg",
+    "germany/atp-munique":           "Munich",
+    "netherlands/atp-rotterdam":     "Rotterdam",
+    "uae/atp-dubai":                 "Dubai",
+    "uae/wta-dubai":                 "Dubai",
+    "qatar/atp-doha":                "Doha",
+    "qatar/wta-doha":                "Doha",
+    "mexico/atp-acapulco":           "Acapulco",
+    "switzerland/atp-basileia":      "Basel",
+    "austria/atp-viena":             "Vienna",
+    "russia/atp-moscou":             "Moscow",
+    "russia/wta-moscou":             "Moscow",
+    "japan/atp-toquio":              "Tokyo",
+    "japan/wta-toquio":              "Tokyo",
+    "brazil/atp-rio-de-janeiro":     "Rio de Janeiro",
+    "argentina/atp-buenos-aires":    "Buenos Aires",
+    "canada/atp-toronto":            "Toronto",
+    "canada/atp-montreal":           "Montreal",
+    "canada/wta-toronto":            "Toronto",
+    "canada/wta-montreal":           "Montreal",
+    "india/atp-pune":                "Pune",
+    "india/atp-chennai":             "Chennai",
+    "south-korea/atp-seul":          "Seoul",
+    "south-korea/wta-seul":          "Seoul",
+    "sweden/atp-estocolmo":          "Stockholm",
+    "belgium/atp-antuérpia":         "Antwerp",
+    "belgium/atp-antuérpia":         "Antwerp",
+    "croatia/atp-zagreb":            "Zagreb",
+    "serbia/atp-belgrado":           "Belgrade",
+    "greece/atp-atenas":             "Athens",
+    "chile/atp-santiago":            "Santiago",
+    "ecuador/atp-quito":             "Quito",
+    "colombia/atp-bogota":           "Bogota",
+    "portugal/atp-estoril":          "Estoril",
+    "portugal/wta-estoril":          "Estoril",
+    "czech-republic/wta-praga":      "Prague",
+    "czech-republic/atp-praga":      "Prague",
+    "hungary/atp-budapeste":         "Budapest",
+    "poland/atp-varsovia":           "Warsaw",
+    "thailand/wta-pattaya":          "Pattaya",
+    "bahrain/atp-bahrein":           "Manama",
+    "saudi-arabia/atp-riyadh":       "Riyadh",
+}
+
+_COUNTRY_NAMES: dict[str, str] = {
+    "usa":            "USA",
+    "uae":            "UAE",
+    "united-kingdom": "UK",
+    "south-korea":    "South Korea",
+    "south-africa":   "South Africa",
+    "czech-republic": "Czech Republic",
+    "new-zealand":    "New Zealand",
+    "saudi-arabia":   "Saudi Arabia",
+    "ivory-coast":    "Ivory Coast",
+    "trinidad-tobago": "Trinidad and Tobago",
+}
+
+
+def _derive_venue(league_path: str) -> tuple[str, str]:
+    """Retorna (country, city) derivados do slug da liga."""
+    parts = league_path.split("/", 1)
+    country_slug = parts[0]
+    tournament_slug = parts[1] if len(parts) > 1 else ""
+    country = _COUNTRY_NAMES.get(country_slug, country_slug.replace("-", " ").title())
+    if league_path in LEAGUE_CITY_OVERRIDES:
+        return country, LEAGUE_CITY_OVERRIDES[league_path]
+    slug = tournament_slug
+    for pfx in ("atp-", "wta-", "challenger-", "itf-m15-", "itf-w15-",
+                 "itf-m25-", "itf-w25-", "itf-m50-", "itf-w50-",
+                 "itf-m100-", "itf-w100-"):
+        if slug.startswith(pfx):
+            slug = slug[len(pfx):]
+            break
+    for sfx in ("-open", "-masters", "-challenger", "-homens",
+                "-mulheres", "-duplas", "-1", "-2", "-3", "-4"):
+        if slug.endswith(sfx):
+            slug = slug[:-len(sfx)]
+            break
+    return country, slug.replace("-", " ").title()
+
 
 # Torneios conhecidos — usados como COMPLEMENTO ao discovery dinamico.
 # O discovery raspa /tennis/results/ e descobre slugs reais automaticamente.
@@ -382,6 +500,10 @@ def _scraped_urls(db_path: str, league_path: str, season: str) -> set:
             JOIN leagues l ON l.id = e.league_id
             WHERE l.path = ? AND e.season = ?
               AND e.score_home IS NOT NULL AND e.score_home != ''
+              AND (
+                e.status != 'finished'
+                OR (e.sets_detail IS NOT NULL AND e.sets_detail != '')
+              )
               AND EXISTS (
                 SELECT 1 FROM odds o JOIN markets m ON m.id = o.market_id
                 WHERE o.event_id = e.id AND m.name = 'home_away'
@@ -414,6 +536,8 @@ def _league_incomplete_events(db_path: str, league_path: str) -> list[dict]:
                   SELECT 1 FROM odds o JOIN markets m ON m.id = o.market_id
                   WHERE o.event_id = e.id AND m.name = 'home_away'
                 )
+                OR (e.status = 'finished'
+                    AND (e.sets_detail IS NULL OR e.sets_detail = ''))
               )
         """, (league_path,)).fetchall()
         con.close()
@@ -469,6 +593,10 @@ async def _process_match(
                 "payout_pct": "", "source_url": match_url,
                 "scraped_at_utc": datetime.now(timezone.utc).isoformat(),
             }
+
+            _country, _city = _derive_venue(league_path)
+            ctx["venue_country"] = ctx["venue_country"] or _country
+            ctx["venue_city"]    = ctx["venue_city"]    or _city
 
             available_tabs = set(match_tabs.parse(h_main))
             wanted = []
