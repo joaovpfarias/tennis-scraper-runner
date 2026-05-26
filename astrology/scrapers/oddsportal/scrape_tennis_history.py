@@ -501,7 +501,11 @@ async def _process_match(
                     writer.write(r)
                 rows_written += len(rows)
 
-            print(f"  -> {rows_written} linhas")
+            # Garante que o evento fica no DB com score mesmo sem odds historicas
+            if rows_written == 0 and ctx.get("event_id"):
+                writer.ensure_event(ctx)
+
+            print(f"  -> {rows_written} linhas (score: {ctx.get('score_home', '')}:{ctx.get('score_away', '')})")
             return rows_written
 
         except Exception as e:

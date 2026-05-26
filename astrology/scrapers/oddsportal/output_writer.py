@@ -203,6 +203,14 @@ class SQLiteWriter:
 
     # ------------------------------------------------------------------ write
 
+    def ensure_event(self, row: dict) -> None:
+        """Persiste o evento com score/status mesmo sem odds. Util quando a pagina nao tem odds historicas."""
+        league_id    = self._league_id(row["sport"], row["league"])
+        home_id      = self._lookup(self._teams, "teams", row.get("home", ""))
+        away_id      = self._lookup(self._teams, "teams", row.get("away", ""))
+        self._upsert_event(row, league_id, home_id, away_id)
+        self._con.commit()
+
     def write(self, row: dict) -> bool:
         """
         Enfileira uma linha de odds. Retorna True (a deduplicacao real e
