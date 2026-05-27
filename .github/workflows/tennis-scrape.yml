@@ -132,22 +132,16 @@ jobs:
 
       - name: Checkpoint WAL (garante dados no .db antes do upload)
         if: always()
-        env:
-          DB_PATH_OVERRIDE: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
         run: |
-          python -c "
-import sqlite3, os, sys
-db = os.environ.get('DB_PATH_OVERRIDE','')
-if not os.path.exists(db):
-    print(f'DB nao encontrado: {db}')
-    sys.exit(0)
-size_before = os.path.getsize(db)
-con = sqlite3.connect(db)
-con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
-con.close()
-size_after = os.path.getsize(db)
-print(f'WAL checkpoint OK: {size_before} -> {size_after} bytes')
-"
+          DB="${{ github.workspace }}/shard-${{ matrix.shard }}.db"
+          if [ -f "$DB" ]; then
+            SZ_BEFORE=$(stat -c%s "$DB")
+            python -c "import sqlite3; c=sqlite3.connect('$DB'); c.execute('PRAGMA wal_checkpoint(TRUNCATE)'); c.close()"
+            SZ_AFTER=$(stat -c%s "$DB")
+            echo "WAL checkpoint OK: ${SZ_BEFORE} -> ${SZ_AFTER} bytes"
+          else
+            echo "DB nao encontrado: $DB"
+          fi
 
       - name: Upload shard DB
         if: always()
