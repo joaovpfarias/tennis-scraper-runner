@@ -130,6 +130,25 @@ jobs:
           INCOMPLETE_MANIFEST: ${{ github.workspace }}/incomplete_leagues.json
         run: python astrology/scrapers/oddsportal/scrape_tennis_history.py
 
+      - name: Checkpoint WAL (garante dados no .db antes do upload)
+        if: always()
+        env:
+          DB_PATH_OVERRIDE: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
+        run: |
+          python -c "
+import sqlite3, os, sys
+db = os.environ.get('DB_PATH_OVERRIDE','')
+if not os.path.exists(db):
+    print(f'DB nao encontrado: {db}')
+    sys.exit(0)
+size_before = os.path.getsize(db)
+con = sqlite3.connect(db)
+con.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+con.close()
+size_after = os.path.getsize(db)
+print(f'WAL checkpoint OK: {size_before} -> {size_after} bytes')
+"
+
       - name: Upload shard DB
         if: always()
         uses: actions/upload-artifact@v4
