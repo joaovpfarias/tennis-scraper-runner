@@ -470,15 +470,6 @@ def _league_tier(path: str) -> int:
     return 5        # ITF M15/M25 etc.
 
 
-# Numero maximo de seasons a tentar por tier (evita 30 fetches em ITF M15 de 3 anos)
-_TIER_MAX_SEASONS: dict[int, int] = {
-    0: 30,   # Grand Slams: historia completa
-    1: 25,   # Masters 1000
-    2: 20,   # ATP/WTA 500
-    3: 15,   # ATP/WTA 250
-    4: 12,   # Challengers
-    5:  8,   # ITF M15/M25 (torneios recentes, sem historia longa)
-}
 
 # ---------------------------------------------------------------------------
 # Discovery dinamico de torneios
@@ -768,18 +759,16 @@ async def _process_match(
 
 async def scrape_league(
     br: OddsPortalBrowser, league_path: str, writer: SQLiteWriter,
-    league_sem: asyncio.Semaphore, max_seasons: int | None = None,
+    league_sem: asyncio.Semaphore,
 ):
     async with league_sem:
         match_sem = asyncio.Semaphore(PARALLEL_MATCHES)
         tier = _league_tier(league_path)
-        n = max_seasons or _TIER_MAX_SEASONS.get(tier, len(SEASON_SUFFIXES))
-        suffixes = SEASON_SUFFIXES[:n + 1]  # +1 para incluir None (season atual)
         print(f"\n{'='*55}")
-        print(f"Torneio: {league_path}  [tier={tier}, max_seasons={n}]")
+        print(f"Torneio: {league_path}  [tier={tier}]")
         print(f"{'='*55}")
 
-        for suffix in suffixes:
+        for suffix in SEASON_SUFFIXES:
             season_str = suffix or ""
 
             results_url = url_builder.build_results_url(SPORT_SLUG, league_path, suffix)
