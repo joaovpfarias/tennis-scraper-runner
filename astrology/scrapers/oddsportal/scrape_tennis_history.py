@@ -68,93 +68,157 @@ DISCOVERY_CACHE_TTL  = 30 * 24 * 3600  # 30 dias
 # ---------------------------------------------------------------------------
 
 LEAGUE_CITY_OVERRIDES: dict[str, str] = {
-    "france/atp-french-open":        "Paris",
-    "france/wta-aberto-da-franca":   "Paris",
-    "france/wta-french-open":        "Paris",
-    "australia/atp-australian-open": "Melbourne",
-    "australia/wta-australian-open": "Melbourne",
-    "united-kingdom/atp-wimbledon":  "Wimbledon",
-    "united-kingdom/wta-wimbledon":  "Wimbledon",
-    "usa/atp-us-open":               "New York",
-    "usa/wta-us-open":               "New York",
-    "usa/atp-indian-wells":          "Indian Wells",
-    "usa/wta-indian-wells":          "Indian Wells",
-    "usa/atp-miami":                 "Miami",
-    "usa/wta-miami":                 "Miami",
-    "usa/atp-cincinnati":            "Cincinnati",
-    "usa/wta-cincinnati":            "Cincinnati",
-    "usa/atp-washington":            "Washington",
-    "usa/atp-houston":               "Houston",
-    "usa/atp-new-haven":             "New Haven",
-    "usa/wta-new-haven":             "New Haven",
-    "monaco/atp-monte-carlo":        "Monte Carlo",
-    "spain/atp-madri":               "Madrid",
-    "spain/wta-madri":               "Madrid",
-    "spain/atp-barcelona":           "Barcelona",
-    "spain/atp-valencia":            "Valencia",
-    "italy/atp-roma":                "Rome",
-    "italy/wta-roma":                "Rome",
-    "china/atp-xangai":              "Shanghai",
-    "china/atp-pequim":              "Beijing",
-    "china/wta-pequim":              "Beijing",
-    "china/wta-wuhan":               "Wuhan",
-    "china/wta-zhuhai":              "Zhuhai",
-    "france/atp-paris-bercy":        "Paris",
-    "germany/atp-hamburgo":          "Hamburg",
-    "germany/atp-munique":           "Munich",
-    "netherlands/atp-rotterdam":     "Rotterdam",
-    "uae/atp-dubai":                 "Dubai",
-    "uae/wta-dubai":                 "Dubai",
-    "qatar/atp-doha":                "Doha",
-    "qatar/wta-doha":                "Doha",
-    "mexico/atp-acapulco":           "Acapulco",
-    "switzerland/atp-basileia":      "Basel",
-    "austria/atp-viena":             "Vienna",
-    "russia/atp-moscou":             "Moscow",
-    "russia/wta-moscou":             "Moscow",
-    "japan/atp-toquio":              "Tokyo",
-    "japan/wta-toquio":              "Tokyo",
-    "brazil/atp-rio-de-janeiro":     "Rio de Janeiro",
-    "argentina/atp-buenos-aires":    "Buenos Aires",
-    "canada/atp-toronto":            "Toronto",
-    "canada/atp-montreal":           "Montreal",
-    "canada/wta-toronto":            "Toronto",
-    "canada/wta-montreal":           "Montreal",
-    "india/atp-pune":                "Pune",
-    "india/atp-chennai":             "Chennai",
-    "south-korea/atp-seul":          "Seoul",
-    "south-korea/wta-seul":          "Seoul",
-    "sweden/atp-estocolmo":          "Stockholm",
-    "belgium/atp-antuérpia":         "Antwerp",
-    "belgium/atp-antuérpia":         "Antwerp",
-    "croatia/atp-zagreb":            "Zagreb",
-    "serbia/atp-belgrado":           "Belgrade",
-    "greece/atp-atenas":             "Athens",
-    "chile/atp-santiago":            "Santiago",
-    "ecuador/atp-quito":             "Quito",
-    "colombia/atp-bogota":           "Bogota",
-    "portugal/atp-estoril":          "Estoril",
-    "portugal/wta-estoril":          "Estoril",
-    "czech-republic/wta-praga":      "Prague",
-    "czech-republic/atp-praga":      "Prague",
-    "hungary/atp-budapeste":         "Budapest",
-    "poland/atp-varsovia":           "Warsaw",
-    "thailand/wta-pattaya":          "Pattaya",
-    "bahrain/atp-bahrein":           "Manama",
-    "saudi-arabia/atp-riyadh":       "Riyadh",
+    # Grand Slams
+    "france/atp-aberto-da-franca":              "Paris",
+    "france/wta-aberto-da-franca":              "Paris",
+    "australia/atp-australian-open":            "Melbourne",
+    "australia/wta-australian-open":            "Melbourne",
+    "united-kingdom/atp-wimbledon":             "Wimbledon",
+    "united-kingdom/wta-wimbledon":             "Wimbledon",
+    "usa/atp-us-open":                          "New York",
+    "usa/wta-us-open":                          "New York",
+    # Masters 1000 / WTA 1000
+    "usa/atp-indian-wells":                     "Indian Wells",
+    "usa/wta-indian-wells":                     "Indian Wells",
+    "usa/atp-miami":                            "Miami",
+    "usa/wta-miami":                            "Miami",
+    "usa/atp-cincinnati":                       "Cincinnati",
+    "usa/wta-cincinnati":                       "Cincinnati",
+    "monaco/atp-monte-carlo":                   "Monte Carlo",
+    "spain/atp-madri":                          "Madrid",
+    "spain/wta-madri":                          "Madrid",
+    "italy/atp-roma":                           "Rome",
+    "italy/wta-roma":                           "Rome",
+    "canada/atp-toronto":                       "Toronto",
+    "canada/atp-montreal":                      "Montreal",
+    "canada/wta-toronto":                       "Toronto",
+    "canada/wta-montreal":                      "Montreal",
+    "china/atp-xangai":                         "Shanghai",
+    "china/wta-wuhan":                          "Wuhan",
+    "china/wta-beijing":                        "Beijing",
+    "france/atp-paris":                         "Paris",
+    # ATP 500 / WTA 500
+    "netherlands/atp-roterda":                  "Rotterdam",
+    "united-arab-emirates/atp-dubai":           "Dubai",
+    "united-arab-emirates/wta-dubai":           "Dubai",
+    "mexico/atp-acapulco":                      "Acapulco",
+    "spain/atp-barcelona":                      "Barcelona",
+    "germany/atp-hamburgo":                     "Hamburg",
+    "germany/atp-halle":                        "Halle",
+    "germany/atp-munique":                      "Munich",
+    "germany/atp-stuttgart":                    "Stuttgart",
+    "usa/atp-washington":                       "Washington",
+    "usa/atp-houston":                          "Houston",
+    "usa/wta-washington":                       "Washington",
+    "usa/atp-new-haven":                        "New Haven",
+    "usa/wta-new-haven":                        "New Haven",
+    "japan/atp-tokyo":                          "Tokyo",
+    "japan/wta-tokyo":                          "Tokyo",
+    "china/atp-beijing":                        "Beijing",
+    "switzerland/atp-basel":                    "Basel",
+    "switzerland/atp-genebra":                  "Geneva",
+    "austria/atp-viena":                        "Vienna",
+    "qatar/atp-doha":                           "Doha",
+    "qatar/wta-doha":                           "Doha",
+    "usa/wta-charleston":                       "Charleston",
+    "germany/wta-stuttgart":                    "Stuttgart",
+    "russia/wta-moscou":                        "Moscow",
+    # ATP 250 / WTA 250+
+    "russia/atp-moscou":                        "Moscow",
+    "russia/atp-sao-petersburgo":               "St. Petersburg",
+    "russia/wta-sao-petersburgo":               "St. Petersburg",
+    "brazil/atp-rio-de-janeiro":                "Rio de Janeiro",
+    "argentina/atp-buenos-aires":               "Buenos Aires",
+    "india/atp-pune":                           "Pune",
+    "india/atp-chennai":                        "Chennai",
+    "south-korea/atp-seul":                     "Seoul",
+    "south-korea/wta-seul":                     "Seoul",
+    "sweden/atp-estocolmo":                     "Stockholm",
+    "belgium/atp-antuerpia":                    "Antwerp",
+    "croatia/atp-zagreb":                       "Zagreb",
+    "croatia/atp-umag":                         "Umag",
+    "serbia/atp-belgrado":                      "Belgrade",
+    "greece/atp-atenas":                        "Athens",
+    "chile/atp-santiago":                       "Santiago",
+    "ecuador/atp-quito":                        "Quito",
+    "colombia/atp-bogota":                      "Bogota",
+    "portugal/atp-estoril":                     "Estoril",
+    "portugal/wta-estoril":                     "Estoril",
+    "czech-republic/wta-praga":                 "Prague",
+    "czech-republic/atp-praga":                 "Prague",
+    "hungary/atp-budapeste":                    "Budapest",
+    "hungary/wta-budapeste":                    "Budapest",
+    "poland/atp-varsovia":                      "Warsaw",
+    "thailand/wta-pattaya":                     "Pattaya",
+    "bahrain/atp-bahrein":                      "Manama",
+    "spain/atp-valencia":                       "Valencia",
+    "israel/atp-tel-aviv":                      "Tel Aviv",
+    "kazakhstan/atp-astana":                    "Astana",
+    "turkey/atp-antalya":                       "Antalya",
+    "turkey/atp-istambul":                      "Istanbul",
+    "austria/atp-kitzbuhel":                    "Kitzbuhel",
+    "romania/atp-bucareste":                    "Bucharest",
+    "romania/wta-bucareste":                    "Bucharest",
+    "australia/atp-adelaide":                   "Adelaide",
+    "australia/wta-adelaide":                   "Adelaide",
+    "australia/atp-sydney":                     "Sydney",
+    "australia/wta-sydney":                     "Sydney",
+    "australia/atp-brisbane":                   "Brisbane",
+    "australia/wta-brisbane":                   "Brisbane",
+    "australia/wta-hobart":                     "Hobart",
+    "new-zealand/atp-auckland":                 "Auckland",
+    "new-zealand/wta-auckland":                 "Auckland",
+    "china/atp-shenzhen":                       "Shenzhen",
+    "china/wta-shenzhen":                       "Shenzhen",
+    "china/atp-chengdu":                        "Chengdu",
+    "china/wta-zhuhai":                         "Zhuhai",
+    "china/wta-guangzhou":                      "Guangzhou",
+    "china/wta-tianjin":                        "Tianjin",
+    "mexico/wta-guadalajara":                   "Guadalajara",
+    "mexico/atp-los-cabos":                     "Los Cabos",
+    "japan/wta-hiroshima":                      "Hiroshima",
+    "japan/atp-hiroshima":                      "Hiroshima",
+    "japan/wta-osaka":                          "Osaka",
+    "india/wta-pune":                           "Pune",
+    "south-africa/atp-joanesburgo":             "Johannesburg",
+    "france/atp-lyon":                          "Lyon",
+    "france/wta-estrasburgo":                   "Strasbourg",
+    "france/atp-marselha":                      "Marseille",
+    "netherlands/atp-s-hertogenbosch":          "s-Hertogenbosch",
+    "netherlands/wta-s-hertogenbosch":          "s-Hertogenbosch",
+    "united-kingdom/atp-eastbourne":            "Eastbourne",
+    "united-kingdom/wta-eastbourne":            "Eastbourne",
+    "united-kingdom/wta-birmingham":            "Birmingham",
+    "united-kingdom/atp-nottingham":            "Nottingham",
+    "serbia/wta-belgrado":                      "Belgrade",
+    "italy/wta-palermo":                        "Palermo",
+    "usa/wta-san-diego":                        "San Diego",
+    "usa/wta-cleveland":                        "Cleveland",
+    "usa/wta-palm-springs":                     "Palm Springs",
+    "usa/atp-dallas":                           "Dallas",
+    "usa/atp-delray-beach":                     "Delray Beach",
+    "usa/atp-san-jose":                         "San Jose",
+    "usa/wta-san-jose":                         "San Jose",
+    "usa/atp-winston-salem-eua":                "Winston-Salem",
+    "usa/atp-atlanta":                          "Atlanta",
+    "usa/atp-newport":                          "Newport",
+    "usa/atp-los-angeles":                      "Los Angeles",
+    "kazakhstan/wta-astana":                    "Astana",
+    "ukraine/itf-w25-kyiv-mulheres":            "Kyiv",
 }
 
 _COUNTRY_NAMES: dict[str, str] = {
-    "usa":            "USA",
-    "uae":            "UAE",
-    "united-kingdom": "UK",
-    "south-korea":    "South Korea",
-    "south-africa":   "South Africa",
-    "czech-republic": "Czech Republic",
-    "new-zealand":    "New Zealand",
-    "saudi-arabia":   "Saudi Arabia",
-    "ivory-coast":    "Ivory Coast",
-    "trinidad-tobago": "Trinidad and Tobago",
+    "usa":                  "USA",
+    "uae":                  "UAE",
+    "united-arab-emirates": "UAE",
+    "united-kingdom":       "UK",
+    "south-korea":          "South Korea",
+    "south-africa":         "South Africa",
+    "czech-republic":       "Czech Republic",
+    "new-zealand":          "New Zealand",
+    "saudi-arabia":         "Saudi Arabia",
+    "ivory-coast":          "Ivory Coast",
+    "trinidad-tobago":      "Trinidad and Tobago",
 }
 
 
@@ -190,7 +254,7 @@ KNOWN_LEAGUES = [
     # --- Grand Slams ---
     "australia/atp-australian-open",
     "australia/wta-australian-open",
-    "france/atp-french-open",
+    "france/atp-aberto-da-franca",      # slug real: aberto-da-franca (PT), nao french-open
     "france/wta-aberto-da-franca",
     "united-kingdom/atp-wimbledon",
     "united-kingdom/wta-wimbledon",
@@ -203,40 +267,57 @@ KNOWN_LEAGUES = [
     "monaco/atp-monte-carlo",
     "spain/atp-madri",
     "italy/atp-roma",
-    "canada/atp-canada",
     "canada/atp-montreal",
     "canada/atp-toronto",
     "usa/atp-cincinnati",
     "china/atp-xangai",
-    "france/atp-paris-bercy",
+    "france/atp-paris",                 # slug real: paris (PT), nao paris-bercy
 
-    # --- WTA Premier / WTA 1000 ---
+    # --- WTA 1000 ---
     "usa/wta-indian-wells",
     "usa/wta-miami",
     "spain/wta-madri",
     "italy/wta-roma",
-    "canada/wta-canada",
     "canada/wta-montreal",
     "canada/wta-toronto",
     "usa/wta-cincinnati",
     "china/wta-wuhan",
-    "china/wta-pequim",
+    "china/wta-beijing",                # slug real: beijing (EN), nao pequim (PT)
 
     # --- ATP 500 ---
-    "netherlands/atp-rotterdam",
-    "uae/atp-dubai",
+    "netherlands/atp-roterda",          # slug real: roterda (PT), nao rotterdam
+    "united-arab-emirates/atp-dubai",   # slug real: united-arab-emirates, nao uae
     "mexico/atp-acapulco",
     "spain/atp-barcelona",
     "germany/atp-hamburgo",
+    "germany/atp-halle",                # ATP 500 - estava faltando
     "germany/atp-munique",
     "usa/atp-washington",
-    "japan/atp-toquio",
-    "china/atp-pequim",
-    "switzerland/atp-basileia",
+    "japan/atp-tokyo",                  # slug real: tokyo (EN), nao toquio (PT)
+    "china/atp-beijing",                # slug real: beijing (EN), nao pequim (PT)
+    "switzerland/atp-basel",            # slug real: basel (EN), nao basileia (PT)
     "austria/atp-viena",
 
-    # --- ATP 250 (mais importantes) ---
-    "australia/atp-adelaida",
+    # --- WTA 500 ---
+    "australia/wta-adelaide",           # slug real: adelaide (EN), nao adelaida (PT)
+    "australia/wta-sydney",
+    "australia/wta-brisbane",
+    "china/wta-shenzhen",
+    "qatar/wta-doha",
+    "united-arab-emirates/wta-dubai",   # slug real: united-arab-emirates, nao uae
+    "usa/wta-charleston",
+    "germany/wta-stuttgart",
+    "spain/wta-barcelona",
+    "usa/wta-washington",
+    "czech-republic/wta-praga",
+    "china/wta-tianjin",
+    "china/wta-guangzhou",
+    "japan/wta-tokyo",                  # slug real: tokyo (EN), nao toquio (PT)
+    "russia/wta-moscou",
+    "austria/wta-linz",
+
+    # --- ATP 250 (principais) ---
+    "australia/atp-adelaide",           # slug real: adelaide (EN), nao adelaida (PT)
     "australia/atp-sydney",
     "australia/atp-brisbane",
     "new-zealand/atp-auckland",
@@ -252,61 +333,37 @@ KNOWN_LEAGUES = [
     "usa/atp-delray-beach",
     "usa/atp-houston",
     "usa/atp-san-jose",
-    "usa/atp-winston-salem",
+    "usa/atp-winston-salem-eua",        # slug real: winston-salem-eua (PT), nao winston-salem
     "usa/atp-atlanta",
     "usa/atp-newport",
     "usa/atp-los-angeles",
     "switzerland/atp-genebra",
     "france/atp-lyon",
-    "france/atp-estrasburgo",
     "netherlands/atp-s-hertogenbosch",
-    "united-kingdom/atp-queens",
     "united-kingdom/atp-eastbourne",
+    "united-kingdom/atp-nottingham",
     "germany/atp-stuttgart",
     "austria/atp-kitzbuhel",
     "sweden/atp-estocolmo",
     "russia/atp-moscou",
-    "russia/atp-st-petersburgo",
+    "russia/atp-sao-petersburgo",       # slug real: sao-petersburgo (PT), nao st-petersburgo
     "romania/atp-bucareste",
     "hungary/atp-budapeste",
     "croatia/atp-umag",
     "croatia/atp-zagreb",
     "serbia/atp-belgrado",
-    "turkey/atp-antalia",
+    "turkey/atp-antalya",               # slug real: antalya (EN), nao antalia (PT)
     "turkey/atp-istambul",
-    "ukraine/atp-kiev",
     "india/atp-pune",
     "india/atp-chennai",
     "china/atp-shenzhen",
     "china/atp-chengdu",
-    "japan/atp-hiroshima",
     "south-korea/atp-seul",
-    "australia/atp-perth",
     "israel/atp-tel-aviv",
     "kazakhstan/atp-astana",
-    "saudi-arabia/atp-riyadh",
+    "belgium/atp-antuerpia",
 
-    # --- WTA 500 ---
-    "australia/wta-adelaida",
-    "australia/wta-sydney",
-    "australia/wta-brisbane",
-    "china/wta-shenzhen",
-    "qatar/wta-doha",
-    "uae/wta-dubai",
-    "usa/wta-charleston",
-    "germany/wta-stuttgart",
-    "spain/wta-barcelona",
-    "usa/wta-san-jose",
-    "usa/wta-washington",
-    "czech-republic/wta-praga",
-    "china/wta-tianjin",
-    "taiwan/wta-taipei",
-    "china/wta-guangzhou",
-    "japan/wta-toquio",
-    "russia/wta-moscou",
-    "austria/wta-linz",
-
-    # --- WTA 250 (mais importantes) ---
+    # --- WTA 250 (principais) ---
     "new-zealand/wta-auckland",
     "australia/wta-hobart",
     "colombia/wta-bogota",
@@ -321,19 +378,17 @@ KNOWN_LEAGUES = [
     "italy/wta-palermo",
     "usa/wta-san-diego",
     "usa/wta-cleveland",
-    "canada/wta-montreal",
-    "china/wta-jiangxi",
+    "china/wta-jiujiang",
     "china/wta-zhuhai",
     "south-korea/wta-seul",
     "japan/wta-hiroshima",
     "japan/wta-osaka",
     "india/wta-pune",
-    "ukraine/wta-kiev",
     "kazakhstan/wta-astana",
     "mexico/wta-guadalajara",
     "usa/wta-palm-springs",
 
-    # --- Challengers ATP relevantes (Brasileiros/Sul-americanos) ---
+    # --- Challengers ATP relevantes ---
     "brazil/challenger-sao-paulo",
     "brazil/challenger-rio-de-janeiro",
     "argentina/challenger-buenos-aires",
@@ -358,6 +413,72 @@ KNOWN_LEAGUES = [
     "china/itf-m25-luzhou-homens",
     "china/itf-w50-baotou-mulheres",
 ]
+
+# ---------------------------------------------------------------------------
+# Prioridade por tier: garante que Grand Slams/Masters são processados PRIMEIRO
+# dentro de cada shard, mesmo que o shard expire antes de terminar todos os torneios.
+# Tier 0 = mais importante; tier 5 = ITF M15 etc.
+# ---------------------------------------------------------------------------
+
+_TIER_GRAND_SLAMS = {
+    "australia/atp-australian-open", "australia/wta-australian-open",
+    "france/atp-aberto-da-franca",   "france/wta-aberto-da-franca",
+    "united-kingdom/atp-wimbledon",  "united-kingdom/wta-wimbledon",
+    "usa/atp-us-open",               "usa/wta-us-open",
+}
+
+_TIER_MASTERS = {
+    # ATP Masters 1000
+    "usa/atp-indian-wells", "usa/atp-miami", "monaco/atp-monte-carlo",
+    "spain/atp-madri",      "italy/atp-roma",
+    "canada/atp-montreal",  "canada/atp-toronto",
+    "usa/atp-cincinnati",   "china/atp-xangai",    "france/atp-paris",
+    # WTA 1000
+    "usa/wta-indian-wells", "usa/wta-miami",
+    "spain/wta-madri",      "italy/wta-roma",
+    "canada/wta-montreal",  "canada/wta-toronto",
+    "usa/wta-cincinnati",   "china/wta-wuhan",     "china/wta-beijing",
+}
+
+_TIER_500 = {
+    "netherlands/atp-roterda", "united-arab-emirates/atp-dubai", "mexico/atp-acapulco",
+    "spain/atp-barcelona",     "germany/atp-hamburgo",           "germany/atp-halle",
+    "germany/atp-munique",     "usa/atp-washington",             "japan/atp-tokyo",
+    "china/atp-beijing",       "switzerland/atp-basel",          "austria/atp-viena",
+    "germany/atp-stuttgart",
+    # WTA 500
+    "australia/wta-adelaide", "usa/wta-charleston", "germany/wta-stuttgart",
+    "united-arab-emirates/wta-dubai", "usa/wta-washington",
+    "qatar/wta-doha",         "russia/wta-moscou",  "japan/wta-tokyo",
+    "china/wta-shenzhen",
+}
+
+
+def _league_tier(path: str) -> int:
+    """Retorna tier de prioridade (0=mais importante, 5=ITF M15)."""
+    if path in _TIER_GRAND_SLAMS:
+        return 0
+    if path in _TIER_MASTERS:
+        return 1
+    if path in _TIER_500:
+        return 2
+    seg = path.split("/", 1)[-1] if "/" in path else path
+    if seg.startswith(("atp-", "wta-")):
+        return 3   # ATP/WTA 250+
+    if "challenger" in seg:
+        return 4
+    return 5        # ITF M15/M25 etc.
+
+
+# Numero maximo de seasons a tentar por tier (evita 30 fetches em ITF M15 de 3 anos)
+_TIER_MAX_SEASONS: dict[int, int] = {
+    0: 30,   # Grand Slams: historia completa
+    1: 25,   # Masters 1000
+    2: 20,   # ATP/WTA 500
+    3: 15,   # ATP/WTA 250
+    4: 12,   # Challengers
+    5:  8,   # ITF M15/M25 (torneios recentes, sem historia longa)
+}
 
 # ---------------------------------------------------------------------------
 # Discovery dinamico de torneios
@@ -647,15 +768,18 @@ async def _process_match(
 
 async def scrape_league(
     br: OddsPortalBrowser, league_path: str, writer: SQLiteWriter,
-    league_sem: asyncio.Semaphore,
+    league_sem: asyncio.Semaphore, max_seasons: int | None = None,
 ):
     async with league_sem:
         match_sem = asyncio.Semaphore(PARALLEL_MATCHES)
+        tier = _league_tier(league_path)
+        n = max_seasons or _TIER_MAX_SEASONS.get(tier, len(SEASON_SUFFIXES))
+        suffixes = SEASON_SUFFIXES[:n + 1]  # +1 para incluir None (season atual)
         print(f"\n{'='*55}")
-        print(f"Torneio: {league_path}")
+        print(f"Torneio: {league_path}  [tier={tier}, max_seasons={n}]")
         print(f"{'='*55}")
 
-        for suffix in SEASON_SUFFIXES:
+        for suffix in suffixes:
             season_str = suffix or ""
 
             results_url = url_builder.build_results_url(SPORT_SLUG, league_path, suffix)
@@ -739,10 +863,20 @@ async def main():
         all_leagues = sorted(set(discovered) | set(KNOWN_LEAGUES))
         print(f"\n[info] {len(discovered)} descobertos + {len(KNOWN_LEAGUES)} conhecidos = {len(all_leagues)} torneios unicos")
 
-        # Sharding (GitHub Actions matrix)
+        # Sharding (GitHub Actions matrix): divide a lista global entre shards
         if TOTAL_SHARDS > 1:
             all_leagues = [s for i, s in enumerate(all_leagues) if i % TOTAL_SHARDS == SHARD_ID]
-            print(f"[shard {SHARD_ID}/{TOTAL_SHARDS}] {len(all_leagues)} torneios neste shard")
+            print(f"[shard {SHARD_ID}/{TOTAL_SHARDS}] {len(all_leagues)} torneios neste shard (antes de reordenar)")
+
+        # PRIORITY-FIRST: reordena dentro do shard por tier (Grand Slams primeiro).
+        # Garante que mesmo se o shard expirar no timeout, os torneios mais importantes
+        # ja foram processados. Dentro de cada tier, ordena alfabeticamente.
+        all_leagues.sort(key=lambda p: (_league_tier(p), p))
+        tier_counts = {}
+        for lg in all_leagues:
+            t = _league_tier(lg)
+            tier_counts[t] = tier_counts.get(t, 0) + 1
+        print(f"[priority] Ordem: {dict(sorted(tier_counts.items()))} (tier 0=Grand Slam, 5=ITF)")
 
         # Filtro por manifest de incompletos (retry run)
         manifest_path = os.environ.get("INCOMPLETE_MANIFEST")

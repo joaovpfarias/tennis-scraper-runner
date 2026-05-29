@@ -1,0 +1,2655 @@
+[
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2021",
+    "total": 45,
+    "scored": 1,
+    "with_odds": 45
+  },
+  {
+    "league": "canada/wta-montreal",
+    "season": "2014",
+    "total": 44,
+    "scored": 11,
+    "with_odds": 44
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2015",
+    "total": 49,
+    "scored": 17,
+    "with_odds": 49
+  },
+  {
+    "league": "australia/australian-open-duplas-mistas",
+    "season": "2016",
+    "total": 31,
+    "scored": 0,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens",
+    "season": "2019",
+    "total": 47,
+    "scored": 17,
+    "with_odds": 47
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2012",
+    "total": 48,
+    "scored": 19,
+    "with_odds": 48
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens",
+    "season": "2023",
+    "total": 42,
+    "scored": 13,
+    "with_odds": 42
+  },
+  {
+    "league": "australia/itf-w35-launceston-mulheres",
+    "season": "",
+    "total": 29,
+    "scored": 0,
+    "with_odds": 29
+  },
+  {
+    "league": "australia/itf-w35-burnie-mulheres",
+    "season": "",
+    "total": 28,
+    "scored": 0,
+    "with_odds": 28
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2013",
+    "total": 48,
+    "scored": 21,
+    "with_odds": 48
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2017",
+    "total": 48,
+    "scored": 21,
+    "with_odds": 48
+  },
+  {
+    "league": "australia/atp-brisbane",
+    "season": "2012",
+    "total": 44,
+    "scored": 17,
+    "with_odds": 44
+  },
+  {
+    "league": "australia/australian-open-duplas-mistas",
+    "season": "2019",
+    "total": 27,
+    "scored": 0,
+    "with_odds": 27
+  },
+  {
+    "league": "australia/wta-sydney",
+    "season": "2012",
+    "total": 43,
+    "scored": 16,
+    "with_odds": 43
+  },
+  {
+    "league": "argentina/atp-cordoba",
+    "season": "2019",
+    "total": 40,
+    "scored": 14,
+    "with_odds": 40
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2024",
+    "total": 47,
+    "scored": 21,
+    "with_odds": 47
+  },
+  {
+    "league": "australia/wta-brisbane",
+    "season": "2018",
+    "total": 50,
+    "scored": 24,
+    "with_odds": 50
+  },
+  {
+    "league": "australia/itf-w25-canberra-mulheres",
+    "season": "2020",
+    "total": 25,
+    "scored": 0,
+    "with_odds": 25
+  },
+  {
+    "league": "australia/itf-w25-mildura-mulheres",
+    "season": "",
+    "total": 25,
+    "scored": 0,
+    "with_odds": 25
+  },
+  {
+    "league": "australia/itf-w25-swan-hill-2-mulheres",
+    "season": "",
+    "total": 25,
+    "scored": 0,
+    "with_odds": 25
+  },
+  {
+    "league": "australia/itf-w25-traralgon-2-mulheres",
+    "season": "",
+    "total": 25,
+    "scored": 0,
+    "with_odds": 25
+  },
+  {
+    "league": "austria/wta-linz",
+    "season": "2023",
+    "total": 40,
+    "scored": 15,
+    "with_odds": 40
+  },
+  {
+    "league": "canada/wta-montreal",
+    "season": "2018",
+    "total": 40,
+    "scored": 15,
+    "with_odds": 40
+  },
+  {
+    "league": "argentina/corrientes-challenger-homens",
+    "season": "",
+    "total": 37,
+    "scored": 13,
+    "with_odds": 37
+  },
+  {
+    "league": "australia/atp-brisbane",
+    "season": "2013",
+    "total": 47,
+    "scored": 23,
+    "with_odds": 47
+  },
+  {
+    "league": "australia/atp-brisbane",
+    "season": "2024",
+    "total": 43,
+    "scored": 19,
+    "with_odds": 43
+  },
+  {
+    "league": "australia/atp-sydney",
+    "season": "2019",
+    "total": 39,
+    "scored": 15,
+    "with_odds": 39
+  },
+  {
+    "league": "australia/itf-w35-burnie-mulheres",
+    "season": "2025",
+    "total": 24,
+    "scored": 0,
+    "with_odds": 24
+  },
+  {
+    "league": "australia/itf-w35-swan-hill-mulheres",
+    "season": "",
+    "total": 24,
+    "scored": 0,
+    "with_odds": 24
+  },
+  {
+    "league": "australia/itf-w35-wagga-wagga-2-mulheres",
+    "season": "",
+    "total": 24,
+    "scored": 0,
+    "with_odds": 24
+  },
+  {
+    "league": "australia/itf-w60-burnie-mulheres",
+    "season": "2015",
+    "total": 24,
+    "scored": 0,
+    "with_odds": 24
+  },
+  {
+    "league": "angola/itf-m15-luanda-2-homens",
+    "season": "",
+    "total": 29,
+    "scored": 6,
+    "with_odds": 29
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2020",
+    "total": 40,
+    "scored": 17,
+    "with_odds": 40
+  },
+  {
+    "league": "argentina/atp-cordoba",
+    "season": "2021",
+    "total": 49,
+    "scored": 26,
+    "with_odds": 49
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2023",
+    "total": 42,
+    "scored": 19,
+    "with_odds": 42
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres",
+    "season": "2022",
+    "total": 37,
+    "scored": 14,
+    "with_odds": 37
+  },
+  {
+    "league": "argentina/itf-m25-trelew-homens",
+    "season": "2024",
+    "total": 29,
+    "scored": 6,
+    "with_odds": 29
+  },
+  {
+    "league": "australia/itf-w35-darwin-2-mulheres",
+    "season": "",
+    "total": 23,
+    "scored": 0,
+    "with_odds": 23
+  },
+  {
+    "league": "australia/itf-w35-darwin-mulheres",
+    "season": "",
+    "total": 23,
+    "scored": 0,
+    "with_odds": 23
+  },
+  {
+    "league": "australia/itf-w50-brisbane-mulheres",
+    "season": "",
+    "total": 23,
+    "scored": 0,
+    "with_odds": 23
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2014",
+    "total": 49,
+    "scored": 26,
+    "with_odds": 49
+  },
+  {
+    "league": "canada/atp-toronto",
+    "season": "",
+    "total": 42,
+    "scored": 19,
+    "with_odds": 42
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2024",
+    "total": 38,
+    "scored": 16,
+    "with_odds": 38
+  },
+  {
+    "league": "argentina/atp-cordoba",
+    "season": "2023",
+    "total": 39,
+    "scored": 17,
+    "with_odds": 39
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "",
+    "total": 49,
+    "scored": 27,
+    "with_odds": 49
+  },
+  {
+    "league": "argentina/itf-m15-bragado-2-homens",
+    "season": "",
+    "total": 30,
+    "scored": 8,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/itf-m25-hurlingham-homens",
+    "season": "",
+    "total": 24,
+    "scored": 2,
+    "with_odds": 24
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2019",
+    "total": 39,
+    "scored": 17,
+    "with_odds": 39
+  },
+  {
+    "league": "australia/itf-w25-darwin-2-mulheres",
+    "season": "",
+    "total": 22,
+    "scored": 0,
+    "with_odds": 22
+  },
+  {
+    "league": "australia/itf-w35-mildura-mulheres",
+    "season": "2024",
+    "total": 22,
+    "scored": 0,
+    "with_odds": 22
+  },
+  {
+    "league": "australia/itf-w35-traralgon-mulheres",
+    "season": "",
+    "total": 22,
+    "scored": 0,
+    "with_odds": 22
+  },
+  {
+    "league": "australia/itf-w50-brisbane-mulheres",
+    "season": "2024",
+    "total": 22,
+    "scored": 0,
+    "with_odds": 22
+  },
+  {
+    "league": "canada/atp-montreal",
+    "season": "2022",
+    "total": 37,
+    "scored": 15,
+    "with_odds": 37
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2016",
+    "total": 36,
+    "scored": 15,
+    "with_odds": 36
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2022",
+    "total": 34,
+    "scored": 13,
+    "with_odds": 34
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens",
+    "season": "2017",
+    "total": 32,
+    "scored": 11,
+    "with_odds": 32
+  },
+  {
+    "league": "argentina/itf-m15-lujan-homens",
+    "season": "",
+    "total": 29,
+    "scored": 8,
+    "with_odds": 29
+  },
+  {
+    "league": "australia/itf-w25-perth-mulheres",
+    "season": "",
+    "total": 21,
+    "scored": 0,
+    "with_odds": 21
+  },
+  {
+    "league": "australia/itf-w60-burnie-mulheres",
+    "season": "2014",
+    "total": 21,
+    "scored": 0,
+    "with_odds": 21
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2012",
+    "total": 42,
+    "scored": 21,
+    "with_odds": 42
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2025",
+    "total": 41,
+    "scored": 20,
+    "with_odds": 41
+  },
+  {
+    "league": "brazil/atp-rio-de-janeiro",
+    "season": "2022",
+    "total": 33,
+    "scored": 12,
+    "with_odds": 33
+  },
+  {
+    "league": "canada/wta-montreal",
+    "season": "2021",
+    "total": 37,
+    "scored": 16,
+    "with_odds": 37
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2017",
+    "total": 33,
+    "scored": 13,
+    "with_odds": 33
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2018",
+    "total": 37,
+    "scored": 17,
+    "with_odds": 37
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2025",
+    "total": 40,
+    "scored": 20,
+    "with_odds": 40
+  },
+  {
+    "league": "argentina/atp-cordoba",
+    "season": "2020",
+    "total": 39,
+    "scored": 19,
+    "with_odds": 39
+  },
+  {
+    "league": "argentina/cordoba-challenger-homens",
+    "season": "",
+    "total": 31,
+    "scored": 11,
+    "with_odds": 31
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2015",
+    "total": 43,
+    "scored": 23,
+    "with_odds": 43
+  },
+  {
+    "league": "australia/itf-w25-darwin-mulheres",
+    "season": "",
+    "total": 20,
+    "scored": 0,
+    "with_odds": 20
+  },
+  {
+    "league": "australia/itf-w25-launceston-mulheres",
+    "season": "2013",
+    "total": 20,
+    "scored": 0,
+    "with_odds": 20
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2018",
+    "total": 49,
+    "scored": 29,
+    "with_odds": 49
+  },
+  {
+    "league": "andorra/andorra-challenger-mulheres",
+    "season": "2022",
+    "total": 32,
+    "scored": 13,
+    "with_odds": 32
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2023",
+    "total": 37,
+    "scored": 18,
+    "with_odds": 37
+  },
+  {
+    "league": "argentina/atp-cordoba",
+    "season": "2022",
+    "total": 38,
+    "scored": 19,
+    "with_odds": 38
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2022",
+    "total": 31,
+    "scored": 12,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres",
+    "season": "",
+    "total": 35,
+    "scored": 16,
+    "with_odds": 35
+  },
+  {
+    "league": "argentina/itf-m25-yerba-buena-homens",
+    "season": "2025",
+    "total": 28,
+    "scored": 9,
+    "with_odds": 28
+  },
+  {
+    "league": "argentina/santa-fe-challenger-homens",
+    "season": "2023",
+    "total": 38,
+    "scored": 19,
+    "with_odds": 38
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2021",
+    "total": 50,
+    "scored": 31,
+    "with_odds": 50
+  },
+  {
+    "league": "australia/burnie-challenger-homens",
+    "season": "2012",
+    "total": 30,
+    "scored": 11,
+    "with_odds": 30
+  },
+  {
+    "league": "australia/burnie-challenger-homens",
+    "season": "2015",
+    "total": 30,
+    "scored": 11,
+    "with_odds": 30
+  },
+  {
+    "league": "australia/itf-w25-canberra-mulheres",
+    "season": "",
+    "total": 19,
+    "scored": 0,
+    "with_odds": 19
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2024",
+    "total": 42,
+    "scored": 23,
+    "with_odds": 42
+  },
+  {
+    "league": "austria/atp-kitzbuhel",
+    "season": "2022",
+    "total": 38,
+    "scored": 19,
+    "with_odds": 38
+  },
+  {
+    "league": "angola/itf-m25-luanda-homens",
+    "season": "",
+    "total": 31,
+    "scored": 13,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2019",
+    "total": 34,
+    "scored": 16,
+    "with_odds": 34
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2022",
+    "total": 18,
+    "scored": 0,
+    "with_odds": 18
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens",
+    "season": "2018",
+    "total": 31,
+    "scored": 13,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2021",
+    "total": 40,
+    "scored": 22,
+    "with_odds": 40
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres",
+    "season": "2024",
+    "total": 37,
+    "scored": 19,
+    "with_odds": 37
+  },
+  {
+    "league": "argentina/corrientes-challenger-homens",
+    "season": "2015",
+    "total": 31,
+    "scored": 13,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/itf-m15-bragado-homens",
+    "season": "",
+    "total": 29,
+    "scored": 11,
+    "with_odds": 29
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-2-homens",
+    "season": "2021",
+    "total": 27,
+    "scored": 9,
+    "with_odds": 27
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-homens",
+    "season": "2022",
+    "total": 29,
+    "scored": 11,
+    "with_odds": 29
+  },
+  {
+    "league": "argentina/itf-m15-villa-carlos-paz-homens",
+    "season": "",
+    "total": 22,
+    "scored": 4,
+    "with_odds": 22
+  },
+  {
+    "league": "australia/itf-darwin-mulheres",
+    "season": "2018",
+    "total": 31,
+    "scored": 13,
+    "with_odds": 31
+  },
+  {
+    "league": "australia/itf-w25-traralgon-mulheres",
+    "season": "",
+    "total": 18,
+    "scored": 0,
+    "with_odds": 18
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "",
+    "total": 17,
+    "scored": 0,
+    "with_odds": 17
+  },
+  {
+    "league": "argentina/atp-cordoba",
+    "season": "",
+    "total": 39,
+    "scored": 22,
+    "with_odds": 39
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2016",
+    "total": 30,
+    "scored": 13,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres",
+    "season": "2023",
+    "total": 35,
+    "scored": 18,
+    "with_odds": 35
+  },
+  {
+    "league": "argentina/itf-m15-rosario-homens",
+    "season": "",
+    "total": 28,
+    "scored": 11,
+    "with_odds": 28
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2013",
+    "total": 50,
+    "scored": 33,
+    "with_odds": 50
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2024",
+    "total": 46,
+    "scored": 29,
+    "with_odds": 46
+  },
+  {
+    "league": "angola/itf-m15-luanda-homens",
+    "season": "2024",
+    "total": 31,
+    "scored": 15,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2021",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens",
+    "season": "2016",
+    "total": 30,
+    "scored": 14,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2013",
+    "total": 27,
+    "scored": 11,
+    "with_odds": 27
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2015",
+    "total": 31,
+    "scored": 15,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2015",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres",
+    "season": "2021",
+    "total": 30,
+    "scored": 14,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres-duplas",
+    "season": "2022",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-homens",
+    "season": "",
+    "total": 29,
+    "scored": 13,
+    "with_odds": 29
+  },
+  {
+    "league": "argentina/itf-m25-mar-del-plata-homens",
+    "season": "",
+    "total": 28,
+    "scored": 12,
+    "with_odds": 28
+  },
+  {
+    "league": "australia/atp-adelaide-duplas",
+    "season": "2020",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2022",
+    "total": 50,
+    "scored": 34,
+    "with_odds": 50
+  },
+  {
+    "league": "australia/atp-brisbane",
+    "season": "2015",
+    "total": 50,
+    "scored": 34,
+    "with_odds": 50
+  },
+  {
+    "league": "australia/atp-brisbane-duplas",
+    "season": "2013",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "australia/camberra-challenger-homens-duplas",
+    "season": "2020",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "australia/itf-m25-swan-hill-homens",
+    "season": "2023",
+    "total": 16,
+    "scored": 0,
+    "with_odds": 16
+  },
+  {
+    "league": "angola/itf-m25-luanda-2-homens",
+    "season": "",
+    "total": 32,
+    "scored": 17,
+    "with_odds": 32
+  },
+  {
+    "league": "angola/itf-m25-luanda-2-homens-duplas",
+    "season": "",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2014",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2019",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2023",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2024",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2025",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-cordoba-duplas",
+    "season": "",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-cordoba-duplas",
+    "season": "2019",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-cordoba-duplas",
+    "season": "2020",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-cordoba-duplas",
+    "season": "2021",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-cordoba-duplas",
+    "season": "2022",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/atp-cordoba-duplas",
+    "season": "2023",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2019",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2017",
+    "total": 32,
+    "scored": 17,
+    "with_odds": 32
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2016",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres-duplas",
+    "season": "2023",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/itf-m15-lujan-homens",
+    "season": "2022",
+    "total": 24,
+    "scored": 9,
+    "with_odds": 24
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens",
+    "season": "2024",
+    "total": 30,
+    "scored": 15,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/itf-m25-chacabuco-homens",
+    "season": "",
+    "total": 30,
+    "scored": 15,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/itf-m25-lujan-homens",
+    "season": "2023",
+    "total": 25,
+    "scored": 10,
+    "with_odds": 25
+  },
+  {
+    "league": "argentina/itf-w25-tucuman-2-mulheres",
+    "season": "2022",
+    "total": 24,
+    "scored": 9,
+    "with_odds": 24
+  },
+  {
+    "league": "argentina/tigre-2-challenger-homens-duplas",
+    "season": "2022",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "australia/atp-brisbane-duplas",
+    "season": "2014",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "australia/atp-sydney-duplas",
+    "season": "2012",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "australia/atp-sydney-duplas",
+    "season": "2013",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "australia/brisbane-2-challenger-homens-duplas",
+    "season": "2025",
+    "total": 15,
+    "scored": 0,
+    "with_odds": 15
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2015",
+    "total": 32,
+    "scored": 17,
+    "with_odds": 32
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2018",
+    "total": 37,
+    "scored": 22,
+    "with_odds": 37
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2020",
+    "total": 49,
+    "scored": 34,
+    "with_odds": 49
+  },
+  {
+    "league": "andorra/andorra-challenger-mulheres",
+    "season": "",
+    "total": 30,
+    "scored": 16,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/atp-buenos-aires",
+    "season": "2014",
+    "total": 31,
+    "scored": 17,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2015",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2016",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2020",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres-duplas",
+    "season": "2021",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/cordoba-challenger-homens-duplas",
+    "season": "",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/corrientes-challenger-homens-duplas",
+    "season": "2015",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/itf-m15-olavarria-homens",
+    "season": "",
+    "total": 25,
+    "scored": 11,
+    "with_odds": 25
+  },
+  {
+    "league": "argentina/itf-m15-tucuman-homens",
+    "season": "",
+    "total": 26,
+    "scored": 12,
+    "with_odds": 26
+  },
+  {
+    "league": "argentina/itf-m25-chacabuco-homens-duplas",
+    "season": "",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/itf-m25-rio-cuarto-homens",
+    "season": "2021",
+    "total": 26,
+    "scored": 12,
+    "with_odds": 26
+  },
+  {
+    "league": "argentina/villa-maria-challenger-homens-duplas",
+    "season": "2024",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/atp-brisbane-duplas",
+    "season": "2015",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/atp-brisbane-duplas",
+    "season": "2016",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/atp-brisbane-duplas",
+    "season": "2018",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/burnie-challenger-homens-duplas",
+    "season": "2013",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/burnie-challenger-homens-duplas",
+    "season": "2019",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/itf-w25-perth-mulheres",
+    "season": "2020",
+    "total": 14,
+    "scored": 0,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/wta-sydney",
+    "season": "2019",
+    "total": 31,
+    "scored": 17,
+    "with_odds": 31
+  },
+  {
+    "league": "austria/atp-kitzbuhel",
+    "season": "2024",
+    "total": 31,
+    "scored": 17,
+    "with_odds": 31
+  },
+  {
+    "league": "angola/itf-m15-luanda-homens",
+    "season": "",
+    "total": 30,
+    "scored": 17,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2017",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2018",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2018",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2017",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/cordoba-2-challenger-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-azul-homens",
+    "season": "",
+    "total": 30,
+    "scored": 17,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/itf-m15-azul-homens",
+    "season": "2024",
+    "total": 26,
+    "scored": 13,
+    "with_odds": 26
+  },
+  {
+    "league": "argentina/itf-m15-azul-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-homens",
+    "season": "2021",
+    "total": 24,
+    "scored": 11,
+    "with_odds": 24
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-neuquen-homens",
+    "season": "",
+    "total": 18,
+    "scored": 5,
+    "with_odds": 18
+  },
+  {
+    "league": "argentina/itf-m15-san-salvador-de-jujuy-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m25-lujan-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/tigre-challenger-homens-duplas",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/atp-brisbane-duplas",
+    "season": "2019",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/burnie-challenger-homens-duplas",
+    "season": "2020",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/burnie-challenger-homens-duplas",
+    "season": "2023",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/itf-m25-burnie-homens-duplas",
+    "season": "2025",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/itf-m25-launceston-homens-duplas",
+    "season": "2025",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/itf-w25-swan-hill-mulheres",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/itf-w60-gold-coast-mulheres",
+    "season": "",
+    "total": 13,
+    "scored": 0,
+    "with_odds": 13
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2012",
+    "total": 28,
+    "scored": 15,
+    "with_odds": 28
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2013",
+    "total": 34,
+    "scored": 21,
+    "with_odds": 34
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "2015",
+    "total": 33,
+    "scored": 20,
+    "with_odds": 33
+  },
+  {
+    "league": "angola/itf-m15-luanda-2-homens-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "angola/itf-m15-luanda-homens-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "angola/itf-m15-luanda-homens-duplas",
+    "season": "2024",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2012",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/atp-buenos-aires-duplas",
+    "season": "2013",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/buenos-aires-3-challenger-homens-duplas",
+    "season": "2024",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens",
+    "season": "2012",
+    "total": 32,
+    "scored": 20,
+    "with_odds": 32
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2012",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/corrientes-challenger-homens-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/itf-corrientes-homens",
+    "season": "",
+    "total": 26,
+    "scored": 14,
+    "with_odds": 26
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-2-homens",
+    "season": "",
+    "total": 23,
+    "scored": 11,
+    "with_odds": 23
+  },
+  {
+    "league": "argentina/itf-m15-salta-homens",
+    "season": "",
+    "total": 30,
+    "scored": 18,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens",
+    "season": "",
+    "total": 29,
+    "scored": 17,
+    "with_odds": 29
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens-duplas",
+    "season": "2024",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/tigre-challenger-homens-duplas",
+    "season": "2023",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "australia/atp-brisbane",
+    "season": "2014",
+    "total": 29,
+    "scored": 17,
+    "with_odds": 29
+  },
+  {
+    "league": "australia/burnie-challenger-homens-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "australia/itf-w25-launceston-mulheres",
+    "season": "2012",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "australia/itf-w25-swan-hill-mulheres-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "australia/itf-w35-burnie-mulheres-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "australia/itf-w35-traralgon-2-mulheres-duplas",
+    "season": "",
+    "total": 12,
+    "scored": 0,
+    "with_odds": 12
+  },
+  {
+    "league": "usa/wta-charleston",
+    "season": "2024",
+    "total": 29,
+    "scored": 17,
+    "with_odds": 29
+  },
+  {
+    "league": "angola/itf-m25-luanda-homens-duplas",
+    "season": "",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "argentina/itf-buenos-aires-2-homens",
+    "season": "",
+    "total": 17,
+    "scored": 6,
+    "with_odds": 17
+  },
+  {
+    "league": "argentina/itf-m15-la-plata-homens-duplas",
+    "season": "",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "argentina/itf-m15-olavarria-homens",
+    "season": "2023",
+    "total": 20,
+    "scored": 9,
+    "with_odds": 20
+  },
+  {
+    "league": "argentina/itf-m15-salta-homens-duplas",
+    "season": "",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/burnie-challenger-homens-duplas",
+    "season": "2017",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/itf-w35-burnie-mulheres-duplas",
+    "season": "2025",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/itf-w35-cairns-2-mulheres-duplas",
+    "season": "",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/itf-w35-launceston-mulheres-duplas",
+    "season": "",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/itf-w35-launceston-mulheres-duplas",
+    "season": "2025",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/itf-w60-camberra-mulheres",
+    "season": "2016",
+    "total": 11,
+    "scored": 0,
+    "with_odds": 11
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2014",
+    "total": 34,
+    "scored": 23,
+    "with_odds": 34
+  },
+  {
+    "league": "australia/wta-brisbane",
+    "season": "2017",
+    "total": 34,
+    "scored": 23,
+    "with_odds": 34
+  },
+  {
+    "league": "usa/wta-cincinnati",
+    "season": "2014",
+    "total": 35,
+    "scored": 24,
+    "with_odds": 35
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2013",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "argentina/itf-corrientes-homens",
+    "season": "2012",
+    "total": 12,
+    "scored": 2,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/itf-m15-azul-homens-duplas",
+    "season": "2024",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "argentina/itf-m15-bragado-2-homens-duplas",
+    "season": "",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "argentina/itf-m15-olavarria-homens-duplas",
+    "season": "",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "argentina/itf-m25-yerba-buena-homens-duplas",
+    "season": "2025",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2018",
+    "total": 49,
+    "scored": 39,
+    "with_odds": 49
+  },
+  {
+    "league": "australia/itf-w25-swan-hill-2-mulheres-duplas",
+    "season": "",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/itf-w35-mildura-mulheres-duplas",
+    "season": "",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/itf-w35-swan-hill-mulheres-duplas",
+    "season": "",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/itf-w50-brisbane-mulheres-duplas",
+    "season": "2024",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/itf-w60-camberra-3-mulheres-duplas",
+    "season": "",
+    "total": 10,
+    "scored": 0,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/wta-brisbane",
+    "season": "2014",
+    "total": 33,
+    "scored": 23,
+    "with_odds": 33
+  },
+  {
+    "league": "austria/atp-kitzbuhel",
+    "season": "2012",
+    "total": 27,
+    "scored": 17,
+    "with_odds": 27
+  },
+  {
+    "league": "austria/atp-viena",
+    "season": "2012",
+    "total": 33,
+    "scored": 23,
+    "with_odds": 33
+  },
+  {
+    "league": "algeria/itf-m15-oran-2-homens",
+    "season": "",
+    "total": 26,
+    "scored": 17,
+    "with_odds": 26
+  },
+  {
+    "league": "algeria/itf-m15-oran-homens-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2022",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2023",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/itf-dolores-homens",
+    "season": "",
+    "total": 14,
+    "scored": 5,
+    "with_odds": 14
+  },
+  {
+    "league": "argentina/itf-m15-buenos-aires-homens",
+    "season": "",
+    "total": 21,
+    "scored": 12,
+    "with_odds": 21
+  },
+  {
+    "league": "argentina/itf-m15-lujan-homens-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/itf-m15-villa-carlos-paz-homens-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens",
+    "season": "2021",
+    "total": 15,
+    "scored": 6,
+    "with_odds": 15
+  },
+  {
+    "league": "argentina/itf-m25-yerba-buena-homens-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/itf-villa-del-dique-homens",
+    "season": "2012",
+    "total": 12,
+    "scored": 3,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/itf-w25-villa-maria-mulheres",
+    "season": "2012",
+    "total": 10,
+    "scored": 1,
+    "with_odds": 10
+  },
+  {
+    "league": "australia/itf-m25-darwin-2-homens-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w25-cairns-mulheres-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w25-darwin-2-mulheres-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w25-perth-2-mulheres-duplas",
+    "season": "2020",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w35-cairns-mulheres-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w35-mildura-mulheres-duplas",
+    "season": "2024",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w50-brisbane-mulheres-duplas",
+    "season": "",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/itf-w60-camberra-mulheres-duplas",
+    "season": "2022",
+    "total": 9,
+    "scored": 0,
+    "with_odds": 9
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2022",
+    "total": 33,
+    "scored": 24,
+    "with_odds": 33
+  },
+  {
+    "league": "australia/wta-brisbane",
+    "season": "",
+    "total": 30,
+    "scored": 21,
+    "with_odds": 30
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2017",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2021",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres-duplas",
+    "season": "",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-mulheres-duplas",
+    "season": "2024",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "argentina/itf-arroyito-homens",
+    "season": "",
+    "total": 13,
+    "scored": 5,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-bell-ville-homens",
+    "season": "",
+    "total": 13,
+    "scored": 5,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-2-homens-duplas",
+    "season": "",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "argentina/itf-w25-buenos-aires-2-mulheres",
+    "season": "2012",
+    "total": 12,
+    "scored": 4,
+    "with_odds": 12
+  },
+  {
+    "league": "argentina/villa-maria-challenger-homens-duplas",
+    "season": "2022",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "armenia/itf-m15-tsaghkadzor-2-homens-duplas",
+    "season": "2024",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "australia/itf-w25-darwin-mulheres-duplas",
+    "season": "",
+    "total": 8,
+    "scored": 0,
+    "with_odds": 8
+  },
+  {
+    "league": "usa/savannah-challenger-homens",
+    "season": "2023",
+    "total": 23,
+    "scored": 15,
+    "with_odds": 23
+  },
+  {
+    "league": "andorra/andorra-challenger-mulheres-duplas",
+    "season": "",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "andorra/andorra-challenger-mulheres-duplas",
+    "season": "2022",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2024",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "argentina/itf-la-rioja-homens",
+    "season": "",
+    "total": 13,
+    "scored": 6,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-homens-duplas",
+    "season": "2022",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "argentina/itf-m15-la-plata-homens",
+    "season": "",
+    "total": 31,
+    "scored": 24,
+    "with_odds": 31
+  },
+  {
+    "league": "argentina/itf-m25-lujan-homens-duplas",
+    "season": "2023",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "argentina/itf-m25-rio-cuarto-homens-duplas",
+    "season": "2021",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "argentina/itf-villa-del-dique-mulheres",
+    "season": "",
+    "total": 13,
+    "scored": 6,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/tucuman-challenger-mulheres-duplas",
+    "season": "",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/itf-w25-canberra-mulheres-duplas",
+    "season": "2020",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/itf-w25-launceston-mulheres-duplas",
+    "season": "",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/itf-w35-wagga-wagga-mulheres-duplas",
+    "season": "",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/itf-w50-caloundra-mulheres-duplas",
+    "season": "",
+    "total": 7,
+    "scored": 0,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/wta-hobart",
+    "season": "",
+    "total": 33,
+    "scored": 26,
+    "with_odds": 33
+  },
+  {
+    "league": "austria/atp-kitzbuhel",
+    "season": "",
+    "total": 31,
+    "scored": 24,
+    "with_odds": 31
+  },
+  {
+    "league": "algeria/itf-m15-oran-2-homens-duplas",
+    "season": "",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "algeria/itf-m15-oran-homens",
+    "season": "",
+    "total": 20,
+    "scored": 14,
+    "with_odds": 20
+  },
+  {
+    "league": "algeria/itf-w15-oran-mulheres",
+    "season": "",
+    "total": 9,
+    "scored": 3,
+    "with_odds": 9
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2016",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2024",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "argentina/itf-m15-tucuman-homens-duplas",
+    "season": "",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens",
+    "season": "2023",
+    "total": 14,
+    "scored": 8,
+    "with_odds": 14
+  },
+  {
+    "league": "australia/atp-australian-open",
+    "season": "2016",
+    "total": 29,
+    "scored": 23,
+    "with_odds": 29
+  },
+  {
+    "league": "australia/itf-w25-camberra-2-mulheres-duplas",
+    "season": "",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "australia/itf-w25-perth-mulheres-duplas",
+    "season": "2020",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "australia/itf-w35-traralgon-mulheres-duplas",
+    "season": "",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "australia/itf-w75-carrara-mulheres-duplas",
+    "season": "",
+    "total": 6,
+    "scored": 0,
+    "with_odds": 6
+  },
+  {
+    "league": "argentina/buenos-aires-2-challenger-homens-duplas",
+    "season": "2023",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "argentina/itf-cordoba-5-homens",
+    "season": "",
+    "total": 13,
+    "scored": 8,
+    "with_odds": 13
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-homens-duplas",
+    "season": "2021",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "argentina/itf-m15-olavarria-homens-duplas",
+    "season": "2023",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "argentina/itf-m25-hurlingham-homens-duplas",
+    "season": "",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "argentina/itf-m25-rio-cuarto-homens-duplas",
+    "season": "",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "argentina/itf-m25-rio-cuarto-homens-duplas",
+    "season": "2020",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "australia/atp-brisbane",
+    "season": "2018",
+    "total": 19,
+    "scored": 14,
+    "with_odds": 19
+  },
+  {
+    "league": "australia/exibicao-kooyong-homens",
+    "season": "2020",
+    "total": 7,
+    "scored": 2,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/itf-bendigo-mulheres",
+    "season": "2012",
+    "total": 8,
+    "scored": 3,
+    "with_odds": 8
+  },
+  {
+    "league": "australia/itf-m25-burnie-homens-duplas",
+    "season": "2023",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "australia/itf-m25-darwin-2-homens-duplas",
+    "season": "2022",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "australia/itf-w75-perth-2-mulheres-duplas",
+    "season": "",
+    "total": 5,
+    "scored": 0,
+    "with_odds": 5
+  },
+  {
+    "league": "algeria/itf-alger-mulheres-duplas",
+    "season": "",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "algeria/itf-annaba-homens",
+    "season": "",
+    "total": 8,
+    "scored": 4,
+    "with_odds": 8
+  },
+  {
+    "league": "algeria/itf-tlemcen-mulheres",
+    "season": "",
+    "total": 10,
+    "scored": 6,
+    "with_odds": 10
+  },
+  {
+    "league": "argentina/buenos-aires-challenger-homens-duplas",
+    "season": "2022",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "argentina/itf-buenos-aires-argentina-homens",
+    "season": "",
+    "total": 7,
+    "scored": 3,
+    "with_odds": 7
+  },
+  {
+    "league": "argentina/itf-cordoba-4-homens",
+    "season": "",
+    "total": 11,
+    "scored": 7,
+    "with_odds": 11
+  },
+  {
+    "league": "argentina/itf-m15-cordoba-2-homens-duplas",
+    "season": "2021",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "argentina/itf-w25-buenos-aires-2-mulheres-duplas",
+    "season": "",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/camberra-challenger-homens-duplas",
+    "season": "2016",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/camberra-challenger-homens-duplas",
+    "season": "2017",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/itf-esperance-australia-homens",
+    "season": "",
+    "total": 7,
+    "scored": 3,
+    "with_odds": 7
+  },
+  {
+    "league": "australia/itf-m25-darwin-2-homens-duplas",
+    "season": "2023",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/itf-w25-mildura-mulheres",
+    "season": "2013",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/itf-w25-perth-2-mulheres-duplas",
+    "season": "",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/itf-w25-traralgon-mulheres-duplas",
+    "season": "",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/itf-w60-camberra-mulheres-duplas",
+    "season": "",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/itf-w75-sydney-mulheres",
+    "season": "",
+    "total": 4,
+    "scored": 0,
+    "with_odds": 4
+  },
+  {
+    "league": "austria/atp-viena",
+    "season": "2014",
+    "total": 17,
+    "scored": 13,
+    "with_odds": 17
+  },
+  {
+    "league": "argentina/itf-carilo-homens",
+    "season": "",
+    "total": 10,
+    "scored": 7,
+    "with_odds": 10
+  },
+  {
+    "league": "argentina/itf-m15-buenos-aires-homens-duplas",
+    "season": "",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "argentina/itf-m15-san-salvador-de-jujuy-homens",
+    "season": "",
+    "total": 5,
+    "scored": 2,
+    "with_odds": 5
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens-duplas",
+    "season": "2023",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/camberra-challenger-homens",
+    "season": "2018",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/exibicao-desafio-de-tenis-mundial-homens",
+    "season": "2016",
+    "total": 6,
+    "scored": 3,
+    "with_odds": 6
+  },
+  {
+    "league": "australia/exibicao-kooyong-homens",
+    "season": "2015",
+    "total": 4,
+    "scored": 1,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/exibicao-kooyong-homens",
+    "season": "2019",
+    "total": 8,
+    "scored": 5,
+    "with_odds": 8
+  },
+  {
+    "league": "australia/exibicao-kooyong-mulheres",
+    "season": "2017",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/itf-w25-traralgon-2-mulheres-duplas",
+    "season": "",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/itf-w60-burnie-mulheres",
+    "season": "2012",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/itf-w60-camberra-2-mulheres",
+    "season": "",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/itf-w60-camberra-3-mulheres",
+    "season": "",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/itf-w75-playford-mulheres",
+    "season": "",
+    "total": 3,
+    "scored": 0,
+    "with_odds": 3
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2020",
+    "total": 4,
+    "scored": 1,
+    "with_odds": 4
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2023",
+    "total": 16,
+    "scored": 13,
+    "with_odds": 16
+  },
+  {
+    "league": "argentina/itf-m15-bragado-homens-duplas",
+    "season": "",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "argentina/itf-m15-lujan-homens-duplas",
+    "season": "2022",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "argentina/itf-m15-villa-maria-homens-duplas",
+    "season": "2021",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "argentina/itf-m25-trelew-homens-duplas",
+    "season": "2024",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "australia/itf-w60-burnie-mulheres-duplas",
+    "season": "",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "australia/itf-w60-burnie-mulheres-duplas",
+    "season": "2012",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "australia/itf-w75-brisbane-mulheres",
+    "season": "",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "australia/itf-w75-playford-mulheres",
+    "season": "2024",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "austria/atp-viena",
+    "season": "2019",
+    "total": 2,
+    "scored": 0,
+    "with_odds": 2
+  },
+  {
+    "league": "algeria/itf-tlemcen-mulheres-duplas",
+    "season": "",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "argentina/exibicao-buenos-aires-homens",
+    "season": "",
+    "total": 2,
+    "scored": 1,
+    "with_odds": 2
+  },
+  {
+    "league": "argentina/itf-cordoba-4-homens-duplas",
+    "season": "",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "argentina/itf-m15-rosario-homens-duplas",
+    "season": "",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "argentina/itf-w25-tucuman-2-mulheres-duplas",
+    "season": "",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "argentina/tigre-challenger-homens-duplas",
+    "season": "2022",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "australia/exibicao-desafio-de-tenis-mundial-homens",
+    "season": "2015",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "australia/exibicao-kooyong-mulheres",
+    "season": "2018",
+    "total": 2,
+    "scored": 1,
+    "with_odds": 2
+  },
+  {
+    "league": "australia/itf-w25-cairns-mulheres-duplas",
+    "season": "2022",
+    "total": 1,
+    "scored": 0,
+    "with_odds": 1
+  },
+  {
+    "league": "australia/wta-australian-open",
+    "season": "2021",
+    "total": 4,
+    "scored": 3,
+    "with_odds": 4
+  }
+]
