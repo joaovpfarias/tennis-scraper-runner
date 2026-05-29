@@ -9,7 +9,7 @@ on:
         required: false
 
 permissions:
-  contents: read
+  contents: write   # necessario para criar/editar releases (memoria permanente)
   actions: write
 
 env:
@@ -71,12 +71,20 @@ jobs:
           pip install ${{ env.REQS }}
           playwright install --with-deps chromium
 
-      # FIX: busca shard da ultima run *concluida* (nao da run atual, que nao tem nada ainda)
-      - name: Download shard anterior (incremental)
+      # Memória persistente: baixa o DB FINAL merged da última run concluída.
+      # Cada shard começa com TODOS os dados já raspados (não só os do shard anterior),
+      # então _scraped_urls() pula corretamente qualquer jogo já feito por qualquer shard.
+      # Fallback: tenta o Release 'latest' (persistência além de 90 dias de artifact).
+      - name: Download seed DB (DB final da ultima run ou release latest)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          SHARD_DB="${{ github.workspace }}/shard-${{ matrix.shard }}.db"
+          SEED_DIR="${{ github.workspace }}/seed"
+          mkdir -p "$SEED_DIR"
+
+          # Tenta artifact da última run concluída
           LAST_RUN=$(gh run list \
             --workflow tennis-scrape.yml \
             --repo ${{ github.repository }} \
@@ -84,14 +92,32 @@ jobs:
             --json databaseId \
             --limit 1 \
             --jq '.[0].databaseId')
+
           if [ -n "$LAST_RUN" ] && [ "$LAST_RUN" != "null" ]; then
-            echo "Baixando shard-${{ matrix.shard }} da run $LAST_RUN..."
+            echo "Baixando tennis-history-final da run $LAST_RUN..."
             gh run download "$LAST_RUN" \
               --repo ${{ github.repository }} \
-              --name shard-${{ matrix.shard }} \
-              --dir ${{ github.workspace }}/ || echo "Shard-${{ matrix.shard }} nao encontrado na run $LAST_RUN — iniciando do zero."
+              --name tennis-history-final \
+              --dir "$SEED_DIR/" 2>/dev/null && FOUND=1 || FOUND=0
+          fi
+
+          # Fallback: release latest (sobrevive além de 90 dias)
+          if [ "${FOUND:-0}" = "0" ]; then
+            echo "Artifact nao encontrado — tentando release latest..."
+            gh release download latest \
+              --repo ${{ github.repository }} \
+              --pattern "tennis_history_full.db" \
+              --dir "$SEED_DIR/" 2>/dev/null || echo "Release latest nao encontrado — iniciando do zero."
+          fi
+
+          # Usa o DB como ponto de partida deste shard
+          SEED_FILE="$SEED_DIR/tennis_history_full.db"
+          if [ -f "$SEED_FILE" ]; then
+            cp "$SEED_FILE" "$SHARD_DB"
+            SZ=$(du -sh "$SHARD_DB" | cut -f1)
+            echo "Seed carregado ($SZ) — shard iniciara de onde parou."
           else
-            echo "Nenhuma run anterior encontrada — iniciando do zero."
+            echo "Sem seed — shard inicia do zero."
           fi
 
       - name: Download discovered slugs
@@ -100,34 +126,11 @@ jobs:
           name: discovered-slugs
           path: astrology/scrapers/oddsportal/data/raw/
 
-      # FIX: busca manifest de ligas incompletas da ultima run *concluida*
-      - name: Download incomplete manifest (retry run)
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          LAST_RUN=$(gh run list \
-            --workflow tennis-scrape.yml \
-            --repo ${{ github.repository }} \
-            --status completed \
-            --json databaseId \
-            --limit 1 \
-            --jq '.[0].databaseId')
-          if [ -n "$LAST_RUN" ] && [ "$LAST_RUN" != "null" ]; then
-            gh run download "$LAST_RUN" \
-              --repo ${{ github.repository }} \
-              --name incomplete-leagues \
-              --dir ${{ github.workspace }}/ || echo "Sem manifest de ligas incompletas na run $LAST_RUN."
-          else
-            echo "Nenhuma run anterior — full scan."
-          fi
-
       - name: Scrape shard ${{ matrix.shard }}
         env:
           SHARD_ID: ${{ matrix.shard }}
           TOTAL_SHARDS: ${{ env.TOTAL_SHARDS }}
           DB_PATH_OVERRIDE: ${{ github.workspace }}/shard-${{ matrix.shard }}.db
-          INCOMPLETE_MANIFEST: ${{ github.workspace }}/incomplete_leagues.json
         run: python astrology/scrapers/oddsportal/scrape_tennis_history.py
 
       - name: Checkpoint WAL (garante dados no .db antes do upload)
@@ -212,6 +215,44 @@ jobs:
           path: incomplete_leagues.json
           retention-days: 90
           if-no-files-found: ignore
+
+      # Memoria permanente: publica o DB final como release 'latest'.
+      # Artifacts expiram em 90 dias; releases nao expiram.
+      # Proximas runs (mesmo meses depois) baixam esse release como seed.
+      - name: Publicar DB no release latest (memoria permanente)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f tennis_history_full.db ]; then
+            echo "DB nao encontrado — nao publicando release."
+            exit 0
+          fi
+          SZ=$(du -sh tennis_history_full.db | cut -f1)
+          EVENTS=$(python3 -c "
+          import sqlite3
+          con = sqlite3.connect('tennis_history_full.db')
+          n = con.execute('SELECT COUNT(*) FROM events').fetchone()[0]
+          con.close()
+          print(n)
+          " 2>/dev/null || echo "?")
+          TAG="latest"
+          NOTES="DB gerado em $(date -u '+%Y-%m-%d %H:%M UTC') | $EVENTS eventos | $SZ"
+          # Cria ou atualiza o release latest
+          gh release view "$TAG" --repo ${{ github.repository }} 2>/dev/null \
+            && gh release edit "$TAG" \
+                --repo ${{ github.repository }} \
+                --notes "$NOTES" \
+            || gh release create "$TAG" \
+                --repo ${{ github.repository }} \
+                --title "Tennis History DB (latest)" \
+                --notes "$NOTES" \
+                --prerelease
+          # Faz upload do DB (substitui se ja existir)
+          gh release upload "$TAG" tennis_history_full.db \
+            --repo ${{ github.repository }} \
+            --clobber
+          echo "Release latest atualizado: $EVENTS eventos, $SZ"
 
   # ---------------------------------------------------------------------------
   # 4) Continue: re-dispara o workflow se houver ligas incompletas
