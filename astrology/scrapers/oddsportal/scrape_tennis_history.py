@@ -59,6 +59,8 @@ PARALLEL_LEAGUES  = 1   # 1 torneio por vez (evita travar a maquina)
 PARALLEL_MATCHES  = 8   # matches em paralelo (usa todas as paginas do pool)
 BROWSER_POOL      = 8   # paginas Chromium no pool
 USE_CACHE         = True
+PAGE_FULL         = 40  # se a pg1 trouxe >= isso, provavelmente ha mais paginas
+MAX_RESULT_PAGES  = 25  # teto de paginas de resultado por season
 DISCOVERY_MAX_PAGES = 150       # paginas maximas a varrer na fase de discovery
 DISCOVERY_CACHE_FILE = str(Path(__file__).parent / "data" / "raw" / "discovered_tennis_leagues.json")
 DISCOVERY_CACHE_TTL  = 30 * 24 * 3600  # 30 dias
@@ -782,15 +784,33 @@ async def scrape_league(
 
             all_matches = results_listing.parse(html)
 
-            # Paginacao
-            total_pages = results_listing.detect_pagination(html)
-            for pg in range(2, total_pages + 1):
-                page_url = f"{results_url}#/page/{pg}/"
-                try:
-                    h = await _fetch_cached(br, page_url, wait_selector=DISCOVERY_WAIT_SELECTOR)
-                    all_matches.extend(results_listing.parse(h))
-                except Exception:
-                    break
+            # Paginacao por esgotamento. detect_pagination NAO funciona: os links
+            # #/page/N/ sao hash-routed via JS e nao aparecem no HTML estatico
+            # (sempre retorna 1) -> so pegava a 1a pagina (~50 de ~153 no AO).
+            # Avanca paginas ate 3 seguidas sem match novo. So pagina se a pg1
+            # veio "cheia" (>= PAGE_FULL): torneios pequenos cabem numa pagina.
+            seen_urls = {m["match_url"] for m in all_matches}
+            if len(all_matches) >= PAGE_FULL:
+                no_new = 0
+                pg = 2
+                while pg <= MAX_RESULT_PAGES:
+                    page_url = f"{results_url}#/page/{pg}/"
+                    try:
+                        h = await _fetch_cached(br, page_url, wait_selector=DISCOVERY_WAIT_SELECTOR)
+                        pg_matches = results_listing.parse(h)
+                    except Exception:
+                        break
+                    new = [m for m in pg_matches if m["match_url"] not in seen_urls]
+                    for m in new:
+                        seen_urls.add(m["match_url"])
+                        all_matches.append(m)
+                    if new:
+                        no_new = 0
+                    else:
+                        no_new += 1
+                        if no_new >= 3:
+                            break
+                    pg += 1
 
             if not all_matches:
                 print(f"  [vazio] sem matches em {results_url}")

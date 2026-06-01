@@ -200,6 +200,14 @@ class SQLiteWriter:
                    WHERE id=? AND score_home IS NULL""",
                 (sh_val, sa_val, sets_detail, status, row.get("scraped_at_utc", ""), row["event_id"]),
             )
+        # Preenche a season quando o evento foi criado pela feed atual (season="")
+        # e agora chega da passada com sufixo de ano. Sem isso ~28% ficava sem ano.
+        season_val = row.get("season", "")
+        if season_val:
+            self._con.execute(
+                "UPDATE events SET season=? WHERE id=? AND (season='' OR season IS NULL)",
+                (season_val, row["event_id"]),
+            )
 
     # ------------------------------------------------------------------ write
 
