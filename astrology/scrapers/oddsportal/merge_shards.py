@@ -205,6 +205,21 @@ def main():
     if skipped:
         print(f"[merge] {skipped} shard(s) pulados (vazios ou corrompidos)")
 
+    # Auto-cura do bug falsy-0: evento 'finished' com EXATAMENTE um lado NULL teve
+    # o 0 do perdedor (sets diretos) apagado pelo `or`. O unico int falsy e 0, entao
+    # o lado faltante e definitivamente 0. Conserta resíduo de DBs/shards antigos.
+    r1 = main_con.execute(
+        "UPDATE events SET score_home=0 "
+        "WHERE status='finished' AND score_home IS NULL AND score_away IS NOT NULL"
+    ).rowcount
+    r2 = main_con.execute(
+        "UPDATE events SET score_away=0 "
+        "WHERE status='finished' AND score_away IS NULL AND score_home IS NOT NULL"
+    ).rowcount
+    main_con.commit()
+    if r1 or r2:
+        print(f"[fix falsy-0] placar do perdedor (0) restaurado: {r1 + r2} eventos")
+
     # Stats finais
     final = {}
     for t in ("events", "odds", "leagues", "teams", "bookmakers"):

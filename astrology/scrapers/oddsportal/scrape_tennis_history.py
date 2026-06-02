@@ -58,6 +58,14 @@ SEASON_SUFFIXES = [None] + [str(y) for y in SEASON_YEARS]
 _CUR_YEAR = datetime.now(timezone.utc).year
 
 
+def _coalesce_score(primary, fallback):
+    """Mantem o valor do header preferindo o primario, MAS preserva 0.
+    BUG anterior: `header.get('score_home') or m.get('score_home')` descartava
+    o 0 (set count do perdedor em sets diretos = falsy) -> placar virava NULL e
+    o evento ficava 'finished' sem score. Atingia ~20k jogos."""
+    return primary if primary not in (None, "") else fallback
+
+
 def _season_is_final(suffix) -> bool:
     """True so para seasons PASSADAS (ano < ano atual): finalizadas, nao mudam mais.
     A season atual (None = feed ao vivo) e o ano corrente NUNCA viram cache."""
@@ -710,8 +718,8 @@ async def _process_match(
                 "event_id": event_id, "event_datetime_utc": iso,
                 "event_datetime_local": "",
                 "home": home, "away": away,
-                "score_home": header.get("score_home") or m.get("score_home", ""),
-                "score_away": header.get("score_away") or m.get("score_away", ""),
+                "score_home": _coalesce_score(header.get("score_home"), m.get("score_home", "")),
+                "score_away": _coalesce_score(header.get("score_away"), m.get("score_away", "")),
                 "sets_detail": header.get("sets_detail", ""),
                 "status": header.get("status", "scheduled"),
                 "venue": header.get("venue", ""), "venue_city": header.get("venue_city", ""),
