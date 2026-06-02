@@ -84,30 +84,31 @@ jobs:
           SEED_DIR="${{ github.workspace }}/seed"
           mkdir -p "$SEED_DIR"
 
-          # Tenta artifact da última run concluída
-          LAST_RUN=$(gh run list \
-            --workflow tennis-scrape.yml \
+          # Release 'latest' PRIMEIRO: e a fonte canonica protegida pelo guard
+          # monotonico (nunca encolhe). O artifact da ultima run pode estar craterado
+          # (seed falho/merge parcial), entao NAO confiar nele como primario.
+          echo "Baixando seed do Release latest (canonico)..."
+          gh release download latest \
             --repo ${{ github.repository }} \
-            --status completed \
-            --json databaseId \
-            --limit 1 \
-            --jq '.[0].databaseId')
+            --pattern "tennis_history_full.db" \
+            --dir "$SEED_DIR/" 2>/dev/null && FOUND=1 || FOUND=0
 
-          if [ -n "$LAST_RUN" ] && [ "$LAST_RUN" != "null" ]; then
-            echo "Baixando tennis-history-final da run $LAST_RUN..."
-            gh run download "$LAST_RUN" \
-              --repo ${{ github.repository }} \
-              --name tennis-history-final \
-              --dir "$SEED_DIR/" 2>/dev/null && FOUND=1 || FOUND=0
-          fi
-
-          # Fallback: release latest (sobrevive além de 90 dias)
+          # Fallback: artifact da ultima run concluida (caso o Release suma)
           if [ "${FOUND:-0}" = "0" ]; then
-            echo "Artifact nao encontrado — tentando release latest..."
-            gh release download latest \
+            echo "Release latest indisponivel — tentando artifact da ultima run..."
+            LAST_RUN=$(gh run list \
+              --workflow tennis-scrape.yml \
               --repo ${{ github.repository }} \
-              --pattern "tennis_history_full.db" \
-              --dir "$SEED_DIR/" 2>/dev/null || echo "Release latest nao encontrado — iniciando do zero."
+              --status completed \
+              --json databaseId \
+              --limit 1 \
+              --jq '.[0].databaseId')
+            if [ -n "$LAST_RUN" ] && [ "$LAST_RUN" != "null" ]; then
+              gh run download "$LAST_RUN" \
+                --repo ${{ github.repository }} \
+                --name tennis-history-final \
+                --dir "$SEED_DIR/" 2>/dev/null || echo "Sem artifact — iniciando do zero."
+            fi
           fi
 
           # Usa o DB como ponto de partida deste shard
@@ -237,6 +238,25 @@ jobs:
           print(n)
           " 2>/dev/null || echo "?")
           TAG="latest"
+          # Guard MONOTONICO: nunca clobberar o Release com um DB MENOR. Um seed falho
+          # ou merge parcial ja cratou 41k -> 5k eventos. So publica se EVENTS >= atual.
+          if [ "${EVENTS:-0}" = "?" ]; then EVENTS=0; fi
+          mkdir -p /tmp/curr
+          gh release download "$TAG" --repo ${{ github.repository }} \
+            --pattern "tennis_history_full.db" --dir /tmp/curr 2>/dev/null || true
+          CUR=$(python3 -c "
+          import sqlite3
+          try:
+              c = sqlite3.connect('/tmp/curr/tennis_history_full.db')
+              print(c.execute('SELECT COUNT(*) FROM events').fetchone()[0]); c.close()
+          except Exception:
+              print(0)
+          " 2>/dev/null || echo 0)
+          if [ "${EVENTS:-0}" -lt "${CUR:-0}" ]; then
+            echo "GUARD MONOTONICO: DB novo ($EVENTS ev) < Release atual ($CUR ev) — NAO publicando (evita crater)."
+            exit 0
+          fi
+          echo "Guard OK: novo=$EVENTS >= atual=$CUR — publicando."
           NOTES="DB gerado em $(date -u '+%Y-%m-%d %H:%M UTC') | $EVENTS eventos | $SZ"
           # Cria ou atualiza o release latest
           gh release view "$TAG" --repo ${{ github.repository }} 2>/dev/null \
