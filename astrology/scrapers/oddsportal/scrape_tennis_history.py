@@ -55,6 +55,19 @@ MARKETS       = [
 SEASON_YEARS  = list(range(2026, 1997, -1))   # 2026, 2025, ..., 1998 (early-stop automatico)
 SEASON_SUFFIXES = [None] + [str(y) for y in SEASON_YEARS]
 
+_CUR_YEAR = datetime.now(timezone.utc).year
+
+
+def _season_is_final(suffix) -> bool:
+    """True so para seasons PASSADAS (ano < ano atual): finalizadas, nao mudam mais.
+    A season atual (None = feed ao vivo) e o ano corrente NUNCA viram cache."""
+    if suffix is None:
+        return False
+    try:
+        return int(suffix) < _CUR_YEAR
+    except (TypeError, ValueError):
+        return False
+
 PARALLEL_LEAGUES  = 1   # 1 torneio por vez (evita travar a maquina)
 PARALLEL_MATCHES  = 8   # matches em paralelo (usa todas as paginas do pool)
 BROWSER_POOL      = 8   # paginas Chromium no pool
@@ -773,6 +786,14 @@ async def scrape_league(
         for suffix in SEASON_SUFFIXES:
             season_str = suffix or ""
 
+            # Pre-listing skip (correcao B): seasons passadas ja raspadas por completo
+            # numa onda anterior sao puladas ANTES de paginar a listagem. Sem isso o
+            # shard re-rastejava a listagem (ate 25 pgs) toda onda e nunca avancava
+            # pela fila para alcancar os tiers profundos (ITF).
+            if _season_is_final(suffix) and writer.is_season_complete(league_path, season_str):
+                print(f"  [skip-cache] {league_path} season={season_str} ja completa (onda anterior)")
+                continue
+
             results_url = url_builder.build_results_url(SPORT_SLUG, league_path, suffix)
             print(f"  [listing] season={season_str or 'atual'}")
 
@@ -821,6 +842,9 @@ async def scrape_league(
             matches_to_process = [m for m in all_matches if m["match_url"] not in done_urls]
             if not matches_to_process:
                 print(f"  [skip] {league_path} season={season_str or 'atual'} — todos {len(all_matches)} ja completos")
+                # Season passada totalmente coberta -> grava no cache p/ pular antes da listagem na proxima onda
+                if _season_is_final(suffix):
+                    writer.mark_season_complete(league_path, season_str, len(all_matches))
                 continue
 
             print(f"  {len(matches_to_process)}/{len(all_matches)} jogos a raspar (season '{season_str or 'atual'}')")
@@ -829,9 +853,19 @@ async def scrape_league(
                 for i, m in enumerate(matches_to_process, 1)
             ]
             await asyncio.gather(*tasks, return_exceptions=True)
+            # Pass completa numa season PASSADA: o conjunto de jogos do torneio finalizado
+            # nao muda mais; marca no cache para nao re-rastejar a listagem nas proximas ondas.
+            # (jogos sem odds no site permanecem sem odds — re-tentar e desperdicio que trava o avanco)
+            if _season_is_final(suffix):
+                writer.mark_season_complete(league_path, season_str, len(all_matches))
 
-        # Backfill: re-raspa eventos sem score OU sem home_away odds
-        incomplete = _league_incomplete_events(str(writer.path), league_path)
+        # Backfill: re-raspa eventos sem score OU sem home_away odds.
+        # Exclui seasons passadas ja marcadas completas (cache B): re-tentar jogos
+        # cronicamente sem odds (challenger/ITF antigos) impediria o shard de avancar.
+        incomplete = [
+            ev for ev in _league_incomplete_events(str(writer.path), league_path)
+            if not (_season_is_final(ev.get("season")) and writer.is_season_complete(league_path, ev.get("season", "")))
+        ]
         if incomplete:
             print(f"  [backfill] {len(incomplete)} eventos incompletos (sem score ou odds) em {league_path}")
             bf_tasks = [

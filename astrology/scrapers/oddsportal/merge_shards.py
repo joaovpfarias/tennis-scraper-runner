@@ -46,6 +46,13 @@ def _has_column(con: sqlite3.Connection, table: str, column: str) -> bool:
     return column in cols
 
 
+def _has_table(con: sqlite3.Connection, table: str) -> bool:
+    row = con.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    ).fetchone()
+    return row is not None
+
+
 def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
     """Merge de um DB shard no DB principal. Retorna stats."""
     src = sqlite3.connect(shard_path)
@@ -124,6 +131,18 @@ def merge_shard(main: sqlite3.Connection, shard_path: str) -> dict:
             ) VALUES (?,?,?,?,?,?,?,?)
         """, (row[0], new_market, new_sub, new_outcome, new_bm, *row[5:]))
         odds_inserted += cur.rowcount
+
+    # 5) season_state (cache B): season completa em qualquer shard vale globalmente.
+    # DBs antigos (pre-B) nao tem a tabela -> ignora.
+    if _has_table(src, "season_state"):
+        for row in src.execute(
+            "SELECT league_path, season, n_matches, completed_at FROM season_state"
+        ):
+            main.execute(
+                """INSERT OR IGNORE INTO season_state(league_path, season, n_matches, completed_at)
+                   VALUES (?,?,?,?)""",
+                row,
+            )
 
     main.commit()
     src.close()

@@ -10,6 +10,7 @@ Reducao vs CSV longo: ~40x menor (strings repetidas viram integers de 1-4 bytes)
 Idempotencia: INSERT OR IGNORE em todas as tabelas.
 """
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -82,6 +83,19 @@ CREATE TABLE IF NOT EXISTS odds (
     odds_closing REAL,
     payout_pct   TEXT    DEFAULT '',
     PRIMARY KEY (event_id, market_id, submarket_id, outcome_id, bookmaker_id)
+);
+
+-- Estado de raspagem por liga-season. Uma season PASSADA (ano < atual) de um
+-- torneio FINALIZADO nao muda mais; uma vez raspada por completo, marcamos aqui
+-- para PULAR antes de paginar a listagem nas proximas ondas (o skip por-jogo
+-- antigo so evitava o fetch de detalhe DEPOIS de rastejar a listagem inteira).
+-- E isso que permite o shard AVANCAR pela fila ate os tiers profundos (ITF).
+CREATE TABLE IF NOT EXISTS season_state (
+    league_path  TEXT    NOT NULL,
+    season       TEXT    NOT NULL,
+    n_matches    INTEGER DEFAULT 0,
+    completed_at TEXT    DEFAULT '',
+    PRIMARY KEY (league_path, season)
 );
 
 CREATE INDEX IF NOT EXISTS idx_odds_event      ON odds(event_id);
@@ -270,6 +284,26 @@ class SQLiteWriter:
     @property
     def new_rows(self) -> int:
         return self._new_count
+
+    # ----------------------------------------------------- season checkpoint
+
+    def is_season_complete(self, league_path: str, season: str) -> bool:
+        """True se esta liga-season ja foi raspada por completo numa onda anterior."""
+        row = self._con.execute(
+            "SELECT 1 FROM season_state WHERE league_path=? AND season=?",
+            (league_path, season),
+        ).fetchone()
+        return row is not None
+
+    def mark_season_complete(self, league_path: str, season: str, n_matches: int) -> None:
+        """Marca a liga-season como totalmente raspada (so usar em seasons PASSADAS)."""
+        self._con.execute(
+            """INSERT OR REPLACE INTO season_state(league_path, season, n_matches, completed_at)
+               VALUES (?,?,?,?)""",
+            (league_path, season, int(n_matches),
+             datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")),
+        )
+        self._con.commit()
 
     # ------------------------------------------------------------------ stats
 
