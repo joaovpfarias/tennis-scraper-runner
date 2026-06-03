@@ -82,8 +82,6 @@ BROWSER_POOL      = 8   # paginas Chromium no pool
 USE_CACHE         = True
 PAGE_FULL         = 40  # se a pg1 trouxe >= isso, provavelmente ha mais paginas
 MAX_RESULT_PAGES  = 25  # teto de paginas de resultado por season
-EMPTY_STREAK_STOP = 3   # apos N seasons PASSADAS vazias seguidas, para de sondar o
-                        # vazio (maioria ITF/challenger tem ~3-8 anos, nao 30)
 DISCOVERY_MAX_PAGES = 150       # paginas maximas a varrer na fase de discovery
 DISCOVERY_CACHE_FILE = str(Path(__file__).parent / "data" / "raw" / "discovered_tennis_leagues.json")
 DISCOVERY_CACHE_TTL  = 30 * 24 * 3600  # 30 dias
@@ -793,7 +791,6 @@ async def scrape_league(
         print(f"Torneio: {league_path}  [tier={tier}]")
         print(f"{'='*55}")
 
-        empty_streak = 0  # seasons passadas vazias seguidas (para early-stop)
         for suffix in SEASON_SUFFIXES:
             season_str = suffix or ""
 
@@ -846,24 +843,13 @@ async def scrape_league(
 
             if not all_matches:
                 print(f"  [vazio] sem matches em {results_url}")
-                # EARLY-STOP (maior ganho de eficiencia): torneios curtos (maioria
-                # ITF/challenger) nao tem 30 anos de historico. Apos N seasons PASSADAS
-                # vazias SEGUIDAS, para de sondar o vazio E marca toda a cauda antiga
-                # restante como completa-vazia (cache) — nenhuma onda futura re-busca.
-                # Sem isso cada torneio gastava ~20+ fetches em anos inexistentes.
+                # SEM early-stop: mapeamos TODOS os anos possiveis (completude).
+                # A eficiencia vem do CACHE: marca a season passada vazia como completa
+                # para nenhuma onda futura re-buscar esse ano. Assim a 1a onda mapeia o
+                # torneio inteiro (cheio + vazio) e as proximas pulam tudo (so feed atual).
                 if _season_is_final(suffix):
                     writer.mark_season_complete(league_path, season_str, 0)
-                    empty_streak += 1
-                    if empty_streak >= EMPTY_STREAK_STOP:
-                        _idx = SEASON_SUFFIXES.index(suffix)
-                        for _older in SEASON_SUFFIXES[_idx + 1:]:
-                            if _season_is_final(_older):
-                                writer.mark_season_complete(league_path, _older or "", 0)
-                        print(f"  [early-stop] {league_path}: {empty_streak} vazias seguidas — cauda antiga cacheada")
-                        break
                 continue
-
-            empty_streak = 0  # season com dados: reseta o contador de vazias
 
             # Checkpoint por jogo: pula apenas os ja completos (score + home_away odds)
             done_urls = _scraped_urls(str(writer.path), league_path, season_str)
