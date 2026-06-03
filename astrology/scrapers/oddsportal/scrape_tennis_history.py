@@ -610,9 +610,10 @@ async def discover_leagues(br: OddsPortalBrowser) -> list[str]:
     return sorted(slugs)
 
 
-async def _fetch_cached(br: OddsPortalBrowser, url: str, wait_selector=None) -> str:
-    """Busca HTML do cache local se disponivel; caso contrario faz request."""
-    if USE_CACHE:
+async def _fetch_cached(br: OddsPortalBrowser, url: str, wait_selector=None, force=False) -> str:
+    """Busca HTML do cache local se disponivel; caso contrario faz request.
+    force=True ignora o cache (usado para CONFIRMAR um listing vazio antes de cachear)."""
+    if USE_CACHE and not force:
         cached = cache_mod.get(url)
         if cached is not None:
             return cached
@@ -812,6 +813,16 @@ async def scrape_league(
                 continue
 
             all_matches = results_listing.parse(html)
+
+            # Confirma vazio com 1 retry (bypass cache) antes de seguir: uma carga lenta
+            # ou transiente nao pode virar um false-empty CACHEADO permanente (protege a
+            # completude — mapeamos todos os anos que realmente existem).
+            if not all_matches:
+                try:
+                    html = await _fetch_cached(br, results_url, wait_selector=DISCOVERY_WAIT_SELECTOR, force=True)
+                    all_matches = results_listing.parse(html)
+                except Exception:
+                    pass
 
             # Paginacao por esgotamento. detect_pagination NAO funciona: os links
             # #/page/N/ sao hash-routed via JS e nao aparecem no HTML estatico

@@ -37,7 +37,13 @@ USER_AGENTS = [
 ]
 
 NAV_TIMEOUT_MS  = 30_000
-WAIT_TIMEOUT_MS = 15_000
+WAIT_TIMEOUT_MS = 15_000   # mantido alto de proposito: com o cache de seasons vazias,
+                           # um timeout curto poderia gravar um false-empty (pagina
+                           # valida lenta) como vazia PERMANENTE -> perda de cobertura.
+
+# Recursos que NAO precisamos (so lemos o DOM via data-testid): bloquear acelera
+# a carga (menos bytes/render) sem mudar os dados. Mantemos document/script/xhr/fetch.
+_BLOCKED_RESOURCES = {"image", "media", "font"}
 ODDS_WAIT_SELECTOR = '[data-testid="over-under-expanded-row"], [data-testid="navigation-active-tab"]'
 
 
@@ -59,6 +65,25 @@ class OddsPortalBrowser:
             viewport={"width": 1366, "height": 900},
         )
         page = await ctx.new_page()
+
+        # Bloqueia imagens/midia/fontes (nao afetam o DOM que parseamos) — reduz
+        # bytes e tempo de render. Script/xhr/fetch/document passam (trazem os dados).
+        async def _block(route):
+            try:
+                if route.request.resource_type in _BLOCKED_RESOURCES:
+                    await route.abort()
+                else:
+                    await route.continue_()
+            except Exception:
+                try:
+                    await route.continue_()
+                except Exception:
+                    pass
+        try:
+            await page.route("**/*", _block)
+        except Exception:
+            pass
+
         if _HAS_STEALTH:
             try:
                 await stealth_async(page)
