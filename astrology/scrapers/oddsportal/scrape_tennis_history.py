@@ -77,8 +77,11 @@ def _season_is_final(suffix) -> bool:
         return False
 
 PARALLEL_LEAGUES  = 1   # 1 torneio por vez (evita travar a maquina)
-PARALLEL_MATCHES  = 8   # matches em paralelo (usa todas as paginas do pool)
-BROWSER_POOL      = 8   # paginas Chromium no pool
+# 8->12: com o bloqueio de imagens/fontes cada pagina ficou mais leve, entao cabe
+# mais concorrencia nos 7 GB do runner ubuntu-latest. Scrape e IO-bound (espera carga),
+# entao +paginas = +throughput. Se OOM (shards falham/coletam menos), voltar p/ 8.
+PARALLEL_MATCHES  = 12  # matches em paralelo (usa todas as paginas do pool)
+BROWSER_POOL      = 12  # paginas Chromium no pool
 USE_CACHE         = True
 PAGE_FULL         = 40  # se a pg1 trouxe >= isso, provavelmente ha mais paginas
 MAX_RESULT_PAGES  = 25  # teto de paginas de resultado por season
