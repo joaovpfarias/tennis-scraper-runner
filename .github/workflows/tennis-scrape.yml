@@ -316,6 +316,19 @@ jobs:
               echo "Atingido limite de $MAX_ATTEMPTS tentativas automaticas. Parando."
               exit 0
             fi
+            # CORRENTE UNICA: so dispara a proxima se NAO houver outra onda ativa.
+            # Sem isso, multiplas chains (continue + dispatches) acumulam 40+ shards
+            # disputando os 20 slots da conta -> a 2a onda espera ~6h na fila.
+            # Uma de cada vez = arranca na hora, cadencia limpa de ~6h.
+            ACTIVE=$(gh run list \
+              --workflow tennis-scrape.yml \
+              --repo ${{ github.repository }} \
+              --json status,databaseId \
+              --jq "[.[] | select((.status==\"in_progress\" or .status==\"queued\") and (.databaseId != ${{ github.run_id }}))] | length")
+            if [ "${ACTIVE:-0}" -gt "0" ]; then
+              echo "Ja existe $ACTIVE onda(s) ativa(s) — NAO disparando outra (mantem corrente unica, sem fila)."
+              exit 0
+            fi
             NEXT_ATTEMPT=$((ATTEMPT + 1))
             echo "Re-disparando workflow (tentativa $NEXT_ATTEMPT de $MAX_ATTEMPTS)..."
             gh workflow run tennis-scrape.yml \
