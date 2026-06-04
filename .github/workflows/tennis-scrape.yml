@@ -15,7 +15,7 @@ permissions:
 env:
   PYTHON_VERSION: '3.12'
   REQS: 'playwright playwright-stealth tenacity beautifulsoup4 lxml python-dateutil'
-  TOTAL_SHARDS: 20
+  TOTAL_SHARDS: 10
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -58,7 +58,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        shard: [0,1,2,3,4,5,6,7,8,9]
     steps:
       - uses: actions/checkout@v4
 
