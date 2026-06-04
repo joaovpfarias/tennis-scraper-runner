@@ -77,11 +77,11 @@ def _season_is_final(suffix) -> bool:
         return False
 
 PARALLEL_LEAGUES  = 1   # 1 torneio por vez (evita travar a maquina)
-# 8->12: com o bloqueio de imagens/fontes cada pagina ficou mais leve, entao cabe
-# mais concorrencia nos 7 GB do runner ubuntu-latest. Scrape e IO-bound (espera carga),
-# entao +paginas = +throughput. Se OOM (shards falham/coletam menos), voltar p/ 8.
-PARALLEL_MATCHES  = 12  # matches em paralelo (usa todas as paginas do pool)
-BROWSER_POOL      = 12  # paginas Chromium no pool
+# 12->24: onda 26950452680 confirmou zero OOM com 12 (todos cancelled, nenhum failed).
+# 24x~150MB=3.6GB browser + 1GB overhead = ~4.6GB de 7GB. IO-bound: +paginas = +throughput.
+# Se OOM (conclusion=failed), voltar p/ 12.
+PARALLEL_MATCHES  = 24  # matches em paralelo (usa todas as paginas do pool)
+BROWSER_POOL      = 24  # paginas Chromium no pool
 USE_CACHE         = True
 PAGE_FULL         = 40  # se a pg1 trouxe >= isso, provavelmente ha mais paginas
 MAX_RESULT_PAGES  = 25  # teto de paginas de resultado por season
