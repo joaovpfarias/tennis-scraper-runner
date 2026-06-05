@@ -224,6 +224,12 @@ def main():
     final = {}
     for t in ("events", "odds", "leagues", "teams", "bookmakers"):
         final[t] = main_con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+    if _has_table(main_con, "season_state"):
+        final["seasons_cached"] = main_con.execute("SELECT COUNT(*) FROM season_state").fetchone()[0]
+        final["seasons_empty"]  = main_con.execute("SELECT COUNT(*) FROM season_state WHERE n_matches=0").fetchone()[0]
+    else:
+        final["seasons_cached"] = 0
+        final["seasons_empty"]  = 0
     main_con.execute("PRAGMA optimize")
     main_con.close()
 
@@ -233,6 +239,7 @@ def main():
     print(f"  Odds:       {final['odds']}")
     print(f"  Torneios:   {final['leagues']}")
     print(f"  Bookmakers: {final['bookmakers']}")
+    print(f"  Seasons cacheadas: {final['seasons_cached']} ({final['seasons_empty']} vazias)")
 
 
 if __name__ == "__main__":
