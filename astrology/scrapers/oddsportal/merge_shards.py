@@ -220,6 +220,30 @@ def main():
     if r1 or r2:
         print(f"[fix falsy-0] placar do perdedor (0) restaurado: {r1 + r2} eventos")
 
+    # Achado 4: infere season do dt_utc para eventos coletados via feed atual (season='')
+    r_season = main_con.execute(
+        "UPDATE events SET season = substr(dt_utc, 1, 4) "
+        "WHERE season = '' AND dt_utc != '' AND length(dt_utc) >= 4"
+    ).rowcount
+    main_con.commit()
+    if r_season:
+        print(f"[fix season] {r_season} eventos tiveram season inferido do dt_utc")
+
+    # Achado 2: Targeted DELETE remove false-empty entries onde events existem
+    r_del = main_con.execute("""
+        DELETE FROM season_state
+        WHERE n_matches = 0
+        AND EXISTS (
+            SELECT 1 FROM events e
+            JOIN leagues l ON e.league_id = l.id
+            WHERE l.path = season_state.league_path
+            AND e.season = season_state.season
+        )
+    """).rowcount
+    main_con.commit()
+    if r_del:
+        print(f"[fix season_state] {r_del} entradas false-empty removidas (eventos existem para essa liga+season)")
+
     # Stats finais
     final = {}
     for t in ("events", "odds", "leagues", "teams", "bookmakers"):
