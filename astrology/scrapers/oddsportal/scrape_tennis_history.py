@@ -82,8 +82,8 @@ def _season_is_final(suffix) -> bool:
     except (TypeError, ValueError):
         return False
 
-PARALLEL_LEAGUES  = 2   # ligas em paralelo por shard (2 ligas × 14 matches = 28 pages total)
-PARALLEL_MATCHES  = 14  # matches em paralelo por liga — semaforo GLOBAL (compartilhado entre ligas)
+PARALLEL_LEAGUES  = 4   # ligas em paralelo por shard (4 ligas × 7 matches = 28 pages total)
+PARALLEL_MATCHES  = 7   # matches em paralelo por liga — semaforo GLOBAL (compartilhado entre ligas)
 BROWSER_POOL      = 28  # paginas Chromium no pool
 USE_CACHE         = True
 PAGE_FULL         = 40  # se a pg1 trouxe >= isso, provavelmente ha mais paginas
