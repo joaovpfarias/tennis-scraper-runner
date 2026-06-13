@@ -27,6 +27,7 @@ from astrology.scrapers.oddsportal.parsers import (
 from astrology.scrapers.oddsportal.market_catalog import get_market
 import importlib
 import sqlite3
+import time
 from datetime import datetime, timezone
 
 # ---------------------------------------------------------------------------
@@ -39,6 +40,25 @@ TOTAL_SHARDS  = int(os.environ.get("TOTAL_SHARDS", "1"))
 DISCOVER_ONLY    = os.environ.get("DISCOVER_ONLY", "0") == "1"
 PRIORITY_INVERT = os.environ.get("PRIORITY_INVERT", "0") == "1"  # shards 7-9: ITF-first
 DEBUG_LEAGUES   = os.environ.get("DEBUG_LEAGUES", "0") == "1"   # roda apenas 5 ligas tier 0/1 localmente
+
+# Graceful shutdown: para de iniciar trabalho novo apos TIME_BUDGET_MIN minutos
+# (0 = sem limite). Evita ser morto pelo timeout-minutes do Actions com trabalho
+# in-flight; o shard encerra limpo e grava STATUS_PATH com exhausted=false.
+TIME_BUDGET_MIN = float(os.environ.get("TIME_BUDGET_MIN", "0") or 0)
+STATUS_PATH     = os.environ.get("STATUS_PATH", "shard_status.json")
+_START_MONOTONIC = time.monotonic()
+_BUDGET = {"exceeded": False}
+
+
+def _budget_exceeded() -> bool:
+    if TIME_BUDGET_MIN <= 0:
+        return False
+    if time.monotonic() - _START_MONOTONIC > TIME_BUDGET_MIN * 60:
+        if not _BUDGET["exceeded"]:
+            print(f"\n[budget] TIME_BUDGET_MIN={TIME_BUDGET_MIN:.0f} atingido — encerrando sem iniciar trabalho novo.")
+        _BUDGET["exceeded"] = True
+        return True
+    return False
 DB_PATH       = os.environ.get("DB_PATH_OVERRIDE") or str(Path(__file__).parent / "data" / "raw" / "tennis_history.db")
 BASE_URL      = "https://www.oddsagora.com.br"
 SPORT_KEY     = "tennis"
@@ -716,6 +736,25 @@ def _load_parser(module_name: str):
     )
 
 
+_ALL_TAB_LABELS: list[str] | None = None
+
+
+def _all_tab_labels() -> list[str]:
+    """Labels (dedupados) de todos os mercados que exigem clique de tab."""
+    global _ALL_TAB_LABELS
+    if _ALL_TAB_LABELS is None:
+        labels = []
+        for mk in MARKETS:
+            try:
+                meta = get_market(mk)
+            except KeyError:
+                continue
+            if meta.get("tab_slug", "") and meta.get("tab_label"):
+                labels.append(meta["tab_label"])
+        _ALL_TAB_LABELS = list(dict.fromkeys(labels))
+    return _ALL_TAB_LABELS
+
+
 async def _process_match(
     br: OddsPortalBrowser, m: dict,
     league_path: str, season: str,
@@ -726,8 +765,10 @@ async def _process_match(
         match_url = m["match_url"]
         print(f"  [match {idx}/{total}] {m.get('home','?')} vs {m.get('away','?')}")
         try:
-            from astrology.scrapers.oddsportal.browser import ODDS_WAIT_SELECTOR
-            h_main = await _fetch_cached(br, match_url, wait_selector=ODDS_WAIT_SELECTOR)
+            # UMA navegacao por jogo: header + tabs na mesma visita (antes eram
+            # 2 navegacoes da mesma URL — fetch da main page + fetch_all_tabs).
+            # Tabs ausentes na pagina simplesmente nao voltam no dict.
+            h_main, tab_htmls = await br.fetch_match(match_url, _all_tab_labels())
             header = match_header.parse(h_main)
             home = header.get("home") or m.get("home", "")
             away = header.get("away") or m.get("away", "")
@@ -754,7 +795,6 @@ async def _process_match(
             ctx["venue_country"] = ctx["venue_country"] or _country
             ctx["venue_city"]    = ctx["venue_city"]    or _city
 
-            available_tabs = set(match_tabs.parse(h_main))
             wanted = []
             for mk in MARKETS:
                 try:
@@ -763,13 +803,12 @@ async def _process_match(
                     continue
                 label    = meta["tab_label"]
                 tab_slug = meta.get("tab_slug", "")
-                # Pula so se requer navegacao (tab_slug nao vazio) E tab nao esta na pagina
-                if tab_slug and available_tabs and label not in available_tabs:
+                # Requer navegacao (tab_slug) mas a tab nao existia na pagina
+                # (fetch_match nao retornou o label) -> mercado indisponivel, pula.
+                if tab_slug and label and label not in tab_htmls:
                     continue
                 wanted.append((mk, label, meta["parser_module"]))
 
-            needed_labels = list({lbl for _, lbl, _ in wanted if lbl})
-            tab_htmls = await br.fetch_all_tabs(match_url, needed_labels) if needed_labels else {}
             htmls = {"": h_main}
             htmls.update(tab_htmls)
 
@@ -807,6 +846,9 @@ async def scrape_league(
     idx: int = 0, total: int = 0,
 ):
     async with league_sem:
+        if _budget_exceeded():
+            return {"league": league_path, "matches_total": 0, "empty_seasons": 0,
+                    "skipped_cache": 0, "skipped_complete": 0, "skipped_budget": True}
         tier = _league_tier(league_path)
         _matches_total = 0
         _empty_seasons = 0
@@ -820,6 +862,8 @@ async def scrape_league(
         _consecutive_empty = 0
         _sfx_idx = 0
         while _sfx_idx < len(SEASON_SUFFIXES):
+            if _budget_exceeded():
+                break
             suffix = SEASON_SUFFIXES[_sfx_idx]
             _sfx_idx += 1
             season_str = suffix or ""
@@ -965,7 +1009,7 @@ async def scrape_league(
         # Backfill: re-raspa eventos sem score OU sem home_away odds.
         # Exclui seasons passadas ja marcadas completas (cache B): re-tentar jogos
         # cronicamente sem odds (challenger/ITF antigos) impediria o shard de avancar.
-        incomplete = [
+        incomplete = [] if _budget_exceeded() else [
             ev for ev in _league_incomplete_events(str(writer.path), league_path)
             if not (_season_is_final(ev.get("season")) and writer.is_season_complete(league_path, ev.get("season", "")))
         ]
@@ -1058,6 +1102,22 @@ async def main():
 
     stats = writer.stats()
     writer.close()
+
+    # Status do shard para o job continue: exhausted=true significa que a fila de
+    # ligas acabou DENTRO do budget (nada pendente neste shard).
+    skipped_budget = sum(1 for r in results if isinstance(r, dict) and r.get("skipped_budget"))
+    status = {
+        "shard": SHARD_ID,
+        "exhausted": not _BUDGET["exceeded"],
+        "leagues_total": len(all_leagues),
+        "leagues_skipped_budget": skipped_budget,
+    }
+    try:
+        Path(STATUS_PATH).write_text(json.dumps(status), encoding="utf-8")
+        print(f"\n[status] {STATUS_PATH}: {status}")
+    except Exception as e:
+        print(f"\n[status] falha ao gravar {STATUS_PATH}: {e}")
+
     print("\n\nConcluido!")
     print(f"  DB: {DB_PATH}")
     print(f"  Eventos: {stats.get('events', 0)}")
