@@ -9,9 +9,18 @@ Schema (5 tabelas de lookup + 2 tabelas de dados):
 Reducao vs CSV longo: ~40x menor (strings repetidas viram integers de 1-4 bytes).
 Idempotencia: INSERT OR IGNORE em todas as tabelas.
 """
+import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Cutoff de deploy do fix de cobertura (selector/paginacao/false-empty).
+# Entradas de season_state com n_matches=0 marcadas ANTES deste instante sao
+# suspeitas (cache envenenado pelo bug antigo) e NAO devem ser confiadas como
+# "season vazia" -> a season e re-listada pelo codigo corrigido. Vazios marcados
+# DEPOIS do cutoff (codigo novo, selector+paginacao corretos) sao confiaveis.
+# Sobrescrevivel por env CACHE_EPOCH (ISO UTC) para futuros redeploys.
+CACHE_EPOCH = os.environ.get("CACHE_EPOCH", "2026-06-16T18:00:00Z")
 
 # ---------------------------------------------------------------------------
 # Schema DDL
@@ -288,12 +297,23 @@ class SQLiteWriter:
     # ----------------------------------------------------- season checkpoint
 
     def is_season_complete(self, league_path: str, season: str) -> bool:
-        """True se esta liga-season ja foi raspada por completo numa onda anterior."""
+        """True se esta liga-season ja foi raspada por completo numa onda anterior.
+
+        Guard anti-poison: um cache n_matches=0 (season vazia) so e confiavel se
+        foi gravado pelo codigo CORRIGIDO (completed_at >= CACHE_EPOCH). Vazios
+        antigos podem ser false-empties do bug de selector/paginacao -> ignorados
+        para que a season seja re-listada. Completes reais (n_matches>0) sempre valem.
+        """
         row = self._con.execute(
-            "SELECT 1 FROM season_state WHERE league_path=? AND season=?",
+            "SELECT n_matches, completed_at FROM season_state WHERE league_path=? AND season=?",
             (league_path, season),
         ).fetchone()
-        return row is not None
+        if row is None:
+            return False
+        n_matches, completed_at = (row[0] or 0), (row[1] or "")
+        if n_matches > 0:
+            return True
+        return completed_at >= CACHE_EPOCH
 
     def mark_season_complete(self, league_path: str, season: str, n_matches: int) -> None:
         """Marca a liga-season como totalmente raspada (so usar em seasons PASSADAS)."""
