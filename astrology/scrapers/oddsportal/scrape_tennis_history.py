@@ -581,9 +581,10 @@ DISCOVERY_WAIT_SELECTOR = '[data-testid="game-row"], a[href*="/tennis/"]'
 LISTING_WAIT_SELECTOR = '[data-testid="game-row"]'
 
 
-async def _fetch_fresh(br: OddsPortalBrowser, url: str, wait_selector: str | None = None) -> str:
+async def _fetch_fresh(br: OddsPortalBrowser, url: str, wait_selector: str | None = None,
+                       settle: float | None = None) -> str:
     """Fetch sem usar cache local (sempre hit na rede)."""
-    return await br.fetch(url, wait_selector=wait_selector)
+    return await br.fetch(url, wait_selector=wait_selector, settle=settle)
 
 
 async def discover_leagues(br: OddsPortalBrowser) -> list[str]:
@@ -606,7 +607,10 @@ async def discover_leagues(br: OddsPortalBrowser) -> list[str]:
         for page in range(1, DISCOVERY_MAX_PAGES + 1):
             url = base if page == 1 else f"{base}#/page/{page}/"
             try:
-                html = await _fetch_fresh(br, url, wait_selector=DISCOVERY_WAIT_SELECTOR)
+                # Espera a game-row REAL renderizar + settle de 2.5s para a GRADE inteira
+                # carregar. Sem isso, retorno cedo pega só o shell SSR/hreflang (slugs EN)
+                # -> discovery flaky (ora 18k PT, ora 9k EN). Com render: slugs PT estaveis.
+                html = await _fetch_fresh(br, url, wait_selector=LISTING_WAIT_SELECTOR, settle=2.5)
             except Exception as e:
                 print(f"  [discovery] Erro pagina {page}: {e}")
                 break
