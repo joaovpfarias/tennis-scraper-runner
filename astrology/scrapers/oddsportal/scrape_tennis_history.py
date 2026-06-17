@@ -892,10 +892,15 @@ async def scrape_league(
             #    nao funciona no oddsagora; so trazia a pg1 ~51 de ~380)
             #  - re-tenta a pg1 ate 2x antes de declarar vazio (throttle != vazio)
             try:
-                _pages = await br.fetch_listing_pages(results_url, wait_selector=LISTING_WAIT_SELECTOR)
+                _pages, _http = await br.fetch_listing_pages(results_url, wait_selector=LISTING_WAIT_SELECTOR)
             except Exception as e:
                 print(f"  [ERRO listing {results_url}]: {e}")
                 continue
+
+            # Distingue vazio-real (HTTP 200) de slug quebrado (404) — base da garantia
+            # de completude: 404 NUNCA conta como "vazio confirmado".
+            _broken      = (_http is not None and _http >= 400)
+            _valid_empty = (_http == 200)
 
             seen_urls = set()
             all_matches = []
@@ -908,17 +913,19 @@ async def scrape_league(
             _pag_ok = True
 
             if not all_matches:
-                print(f"  [vazio] sem matches em {results_url}")
+                tag = "404/quebrado" if _broken else ("200-vazio" if _valid_empty else "incerto")
+                print(f"  [vazio:{tag}] sem matches em {results_url} (http={_http})")
                 _empty_seasons += 1
                 if _season_is_final(suffix):
                     _consecutive_empty += 1
-                    # Achado 2 guard: so marca como vazio se nao houver eventos ja gravados para esse ano.
-                    # Evita cachear como "nunca existiu" uma season que foi coletada via feed atual.
                     existing_count = _scraped_urls_count(str(writer.path), league_path, season_str)
-                    if existing_count == 0:
-                        writer.mark_season_complete(league_path, season_str, 0)
-                    else:
+                    if existing_count > 0:
                         print(f"  [skip-empty-guard] {league_path}/{season_str} tem {existing_count} eventos no DB — nao cacheia como vazio")
+                    elif _broken:
+                        writer.mark_season_complete(league_path, season_str, -1)   # slug quebrado/404
+                    elif _valid_empty:
+                        writer.mark_season_complete(league_path, season_str, 0)    # 200 -> vazio confirmado
+                    # else: http incerto (rede/throttle) -> NAO cacheia, re-tenta
 
                     # Early-stop: apos EARLY_STOP_THRESHOLD vazios consecutivos acima de
                     # PROBE_CUTOFF, verifica ancoras historicas para decidir se a liga esta
@@ -945,13 +952,14 @@ async def scrape_league(
                             print(f"  [early-stop-probe] {league_path}: dados em {found_anchor} — retomando iteracao normal")
                             _consecutive_empty = 0
                         else:
-                            # Liga morta: bulk-cache todos os sufixos restantes sem fetchá-los.
-                            # Salva N_remaining - len(anchors) fetches vs varrer sequencialmente.
+                            # Liga sem dados: bulk-cache as seasons restantes. 404 (slug
+                            # quebrado) -> -1 (gap p/ auditoria); 200 (morta) -> 0 (confirmado).
+                            _mark = -1 if _broken else 0
                             remaining = SEASON_SUFFIXES[_sfx_idx:]
                             n_cached = 0
                             for rem in remaining:
                                 if rem and _season_is_final(rem):
-                                    writer.mark_season_complete(league_path, rem, 0)
+                                    writer.mark_season_complete(league_path, rem, _mark)
                                     n_cached += 1
                             print(f"  [early-stop] {league_path}: {EARLY_STOP_THRESHOLD} vazios + {len(anchors_to_probe)} anchors vazios — {n_cached} seasons cacheadas")
                             break
