@@ -772,6 +772,10 @@ async def _process_match(
     idx: int, total: int,
 ) -> int:
     async with sem:
+        # Respeita o orcamento POR JOGO: budget estourado no meio de um lote grande
+        # -> tasks restantes saem na hora -> shard encerra limpo (success), nao cancelled.
+        if _budget_exceeded():
+            return 0
         match_url = m["match_url"]
         print(f"  [match {idx}/{total}] {m.get('home','?')} vs {m.get('away','?')}")
         try:
