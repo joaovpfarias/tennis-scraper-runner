@@ -924,6 +924,12 @@ async def scrape_league(
                 tag = "404/quebrado" if _broken else ("200-vazio" if _valid_empty else "incerto")
                 print(f"  [vazio:{tag}] sem matches em {results_url} (http={_http})")
                 _empty_seasons += 1
+                # 404 = slug QUEBRADO (nao muda com a season). Cacheia broken em QUALQUER
+                # season — INCLUSIVE a atual/None — senao o listing 404 e re-tentado TODA
+                # onda. Era a causa do plato: ~936 slugs ruins do discovery re-raspados a
+                # cada onda -> 0 jogos novos. Agora marca broken na 1a vez e pula depois.
+                if _broken and _scraped_urls_count(str(writer.path), league_path, season_str) == 0:
+                    writer.mark_season_complete(league_path, season_str, -1)
                 if _season_is_final(suffix):
                     _consecutive_empty += 1
                     existing_count = _scraped_urls_count(str(writer.path), league_path, season_str)
