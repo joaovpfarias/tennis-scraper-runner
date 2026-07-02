@@ -1058,9 +1058,21 @@ async def main():
             writer.close()
             return
 
-        # Merge: torneios descobertos + KNOWN_LEAGUES (complemento historico)
-        all_leagues = sorted(set(discovered) | set(KNOWN_LEAGUES))
-        print(f"\n[info] {len(discovered)} descobertos + {len(KNOWN_LEAGUES)} conhecidos = {len(all_leagues)} torneios unicos")
+        # Merge: torneios descobertos + KNOWN_LEAGUES + ligas ja no DB (complemento historico)
+        # DB-restore: ligas raspadas em runs anteriores que sumiram do discovery (slug mismatch)
+        # sao re-incluidas automaticamente. Isso resolve o plateau quando o discovery muda de
+        # formato e deixa de gerar os slugs que ja temos no banco.
+        try:
+            _db_leagues = {r[0] for r in writer._con.execute(
+                "SELECT DISTINCT l.path FROM leagues l JOIN events e ON e.league_id=l.id")}
+            _n_db_extra = len(_db_leagues - set(discovered) - set(KNOWN_LEAGUES))
+            if _n_db_extra:
+                print(f"[db-restore] +{_n_db_extra} ligas do DB nao no discovery/KNOWN — re-incluindo")
+        except Exception as _e:
+            print(f"[db-restore] erro: {_e}")
+            _db_leagues = set()
+        all_leagues = sorted(set(discovered) | set(KNOWN_LEAGUES) | _db_leagues)
+        print(f"\n[info] {len(discovered)} descobertos + {len(KNOWN_LEAGUES)} conhecidos + {len(_db_leagues)} do DB = {len(all_leagues)} torneios unicos")
 
         # Sharding (GitHub Actions matrix): divide a lista global entre shards
         if TOTAL_SHARDS > 1:
