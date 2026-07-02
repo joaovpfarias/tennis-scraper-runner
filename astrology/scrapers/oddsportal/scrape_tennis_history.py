@@ -7,11 +7,13 @@
 # Fase 3 (paralelo):  torneios rodam em paralelo (PARALLEL_LEAGUES ao mesmo tempo)
 
 import asyncio
+import gzip
 import json
 import os
 import re
 import sys
 import time as _time
+import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
@@ -587,12 +589,85 @@ async def _fetch_fresh(br: OddsPortalBrowser, url: str, wait_selector: str | Non
     return await br.fetch(url, wait_selector=wait_selector, settle=settle)
 
 
+_SITEMAP_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+               "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+
+
+def _fetch_xml(url: str) -> str:
+    """Busca um XML cru (sitemap) via HTTP. Descomprime gzip se necessario."""
+    req = urllib.request.Request(url, headers={"User-Agent": _SITEMAP_UA,
+                                               "Accept": "application/xml,text/xml,*/*"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = r.read()
+    if data[:2] == b"\x1f\x8b":
+        data = gzip.decompress(data)
+    return data.decode("utf-8", "replace")
+
+
+def discover_leagues_from_sitemap(sport_slug: str) -> list[str]:
+    """Fonte AUTORITATIVA (porte do football-scraper): le os sitemaps do oddsagora
+    e retorna os slugs base {pais}/{torneio}, ja nos nomes PT canonicos.
+
+    Substitui a raspagem de paginas de indice, que gerava slugs EN -> 404
+    (ex: 'germany/atp-hamburg' quando o site usa 'germany/atp-hamburgo'). Era a
+    causa-raiz do plateau: ~9.3k slugs EN mortos consumiam todo o budget em 404
+    e as ligas PT reais nem entravam na fila. Validado 2026-07-01: 9.488 slugs
+    PT, todos os Grand Slams/Masters/ITF presentes, zero slugs EN.
+    """
+    sources = [
+        f"{BASE_URL}/sitemap/{sport_slug}/results.xml",
+        f"{BASE_URL}/sitemap/{sport_slug}/standings.xml",
+        f"{BASE_URL}/sitemap/tournament.xml",
+    ]
+    raw: set[str] = set()
+    for src in sources:
+        try:
+            txt = _fetch_xml(src)
+        except Exception as e:
+            print(f"[sitemap] erro {src}: {e}")
+            continue
+        # Indice (aponta p/ sub-sitemaps, ex: results-1.xml) vs urlset direto.
+        subs = re.findall(r"<loc>\s*([^<]*sitemap[^<]*\.xml)\s*</loc>", txt)
+        bodies = []
+        if subs:
+            for s in subs:
+                try:
+                    bodies.append(_fetch_xml(s.strip()))
+                except Exception:
+                    pass
+        else:
+            bodies = [txt]
+        for body in bodies:
+            raw |= set(re.findall(
+                rf"/{sport_slug}/([a-z0-9-]+/[a-z0-9-]+)(?:/results/|/standings/|/)", body))
+
+    # Normaliza sufixo de SEASON (ano YYYY ou YYYY-YYYY) -> slug base, porque o
+    # scraper ja anexa SEASON_SUFFIXES.
+    def _base(slug: str) -> str:
+        return re.sub(r"-(19|20)\d{2}(-(19|20)\d{2})?$", "", slug)
+
+    out = sorted({_base(s) for s in raw})
+    print(f"[sitemap] {len(out)} torneios (slugs PT) do sitemap de {sport_slug}")
+    return out
+
+
 async def discover_leagues(br: OddsPortalBrowser) -> list[str]:
     """
-    Raspa paginas do oddsagora.com.br para descobrir slugs reais de torneios.
-    Tenta multiplas URLs-fonte (resultados globais + pagina principal do esporte).
+    Descobre os slugs de torneios. FONTE PRIMARIA: sitemap do oddsagora (lista
+    autoritativa, slugs PT corretos, deterministica). Fallback: raspagem das
+    paginas de resultados (metodo antigo) se o sitemap falhar/vier curto.
     """
-    slugs: set[str] = set()
+    try:
+        sm = discover_leagues_from_sitemap(SPORT_SLUG)
+    except Exception as e:
+        print(f"[sitemap] falhou completamente: {e}")
+        sm = []
+    if len(sm) >= 200:
+        print(f"[discovery] usando {len(sm)} slugs do sitemap (fonte autoritativa)")
+        return sm
+    print(f"[discovery] sitemap deu so {len(sm)} slugs — fallback p/ raspagem de indice")
+
+    slugs: set[str] = set(sm)
     discovery_urls = [
         f"{BASE_URL}/tennis/results/",
         f"{BASE_URL}/tennis/",
@@ -859,6 +934,22 @@ async def scrape_league(
     league_sem: asyncio.Semaphore, match_sem: asyncio.Semaphore,
     idx: int = 0, total: int = 0,
 ):
+    # Slug morto: listing da season atual deu 404 numa onda anterior (n=-1 no
+    # season_state) e a liga nao tem nenhum evento no DB. 404 nao muda com a
+    # season — re-fetchar e desperdicio. Sem este skip, cada onda re-fetchava as
+    # seasons NAO-finais (atual + ano corrente) de cada liga morta (~3 fetches
+    # x ~20s por liga) — dreno principal do budget de 330min.
+    try:
+        _row = writer._con.execute(
+            "SELECT n_matches FROM season_state WHERE league_path=? AND season=''",
+            (league_path,)).fetchone()
+        _root_broken = _row is not None and (_row[0] or 0) == -1
+    except Exception:
+        _root_broken = False
+    if _root_broken and _scraped_urls_count(str(writer.path), league_path, "") == 0:
+        print(f"[skip-broken] {league_path}: slug 404 em onda anterior — pulando liga")
+        return {"league": league_path, "matches_total": 0, "empty_seasons": 0,
+                "skipped_cache": 1, "skipped_complete": 0}
     async with league_sem:
         if _budget_exceeded():
             return {"league": league_path, "matches_total": 0, "empty_seasons": 0,
